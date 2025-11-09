@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Investigating C++ Virtual Table and Functions | Thousand Miles</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Problem&#x2F;ChallengeUnderstanding how C++ implements runtime polymorphism through virtual functions is crucial for mastering object-oriented programming. However, the underlying mechanism—the virtua">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Investigating C++ Virtual Table and Functions">
+<meta property="og:url" content="https://thousandmiles.github.io/blog/2025/11/09/Investigating-Cpp-Virtual-Table-and-Functions/index.html">
+<meta property="og:site_name" content="Thousand Miles">
+<meta property="og:description" content="Problem&#x2F;ChallengeUnderstanding how C++ implements runtime polymorphism through virtual functions is crucial for mastering object-oriented programming. However, the underlying mechanism—the virtua">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-11-09T05:08:08.000Z">
+<meta property="article:modified_time" content="2025-11-09T06:34:34.441Z">
+<meta property="article:author" content="Forrest Long">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="Memory Model">
+<meta property="article:tag" content="Object-Oriented Programming">
+<meta property="article:tag" content="Virtual Functions">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/blog/atom.xml" title="Thousand Miles" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/blog/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/blog/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/blog/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/blog/" id="logo">Thousand Miles</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/blog/">Home</a>
+        
+          <a class="main-nav-link" href="/blog/categories/Programming">Programming</a>
+        
+          <a class="main-nav-link" href="/blog/categories/AI">AI</a>
+        
+          <a class="main-nav-link" href="/blog/categories/Projects">Projects</a>
+        
+          <a class="main-nav-link" href="/blog/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          
+            <a class="nav-icon" target="_blank" rel="noopener" href="https://github.com/thousandmiles"><span class="fa fa-github"></span></a>
+          
+        
+        
+          <a class="nav-icon" href="/blog/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://thousandmiles.github.io/blog"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-Investigating-Cpp-Virtual-Table-and-Functions" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/blog/2025/11/09/Investigating-Cpp-Virtual-Table-and-Functions/" class="article-date">
+  <time class="dt-published" datetime="2025-11-09T05:08:08.000Z" itemprop="datePublished">2025-11-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/blog/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Investigating C++ Virtual Table and Functions
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="Problem-Challenge"><a href="#Problem-Challenge" class="headerlink" title="Problem&#x2F;Challenge"></a>Problem&#x2F;Challenge</h2><p>Understanding how C++ implements runtime polymorphism through virtual functions is crucial for mastering object-oriented programming. However, the underlying mechanism—the virtual table (vtable)—remains a mystery to many developers. How can we actually observe and verify the vtable structure, locate virtual function pointers, and understand the object memory layout?</p>
+<span id="more"></span>
+
+<h2 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h2><p>We’ll explore three key aspects of C++ virtual tables:</p>
+<ol>
+<li>How to get the virtual table and pointer addresses</li>
+<li>How to verify these results are correct</li>
+<li>How to understand the object address model</li>
+</ol>
+<h3 id="1-Getting-Virtual-Table-and-Pointer-Addresses"><a href="#1-Getting-Virtual-Table-and-Pointer-Addresses" class="headerlink" title="1. Getting Virtual Table and Pointer Addresses"></a>1. Getting Virtual Table and Pointer Addresses</h3><p>The virtual table pointer (vptr) is typically stored as the first member of an object with virtual functions. Here’s how to access it:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdint&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">func1</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;Base::func1()&quot;</span> &lt;&lt; std::endl; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">func2</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;Base::func2()&quot;</span> &lt;&lt; std::endl; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">func3</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;Base::func3()&quot;</span> &lt;&lt; std::endl; &#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">Base</span>() &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> baseData = <span class="number">10</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span> : <span class="keyword">public</span> Base &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">func1</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;Derived::func1()&quot;</span> &lt;&lt; std::endl; &#125;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">func2</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;Derived::func2()&quot;</span> &lt;&lt; std::endl; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> derivedData = <span class="number">20</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get object address</span></span><br><span class="line">    Base* basePtr = <span class="keyword">new</span> <span class="built_in">Base</span>();</span><br><span class="line">    Base* derivedPtr = <span class="keyword">new</span> <span class="built_in">Derived</span>();</span><br><span class="line"></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Base object address: &quot;</span> &lt;&lt; basePtr &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Derived object address: &quot;</span> &lt;&lt; derivedPtr &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get vptr (first 8 bytes on 64-bit system)</span></span><br><span class="line">    <span class="type">uintptr_t</span>* baseVptr = <span class="built_in">reinterpret_cast</span>&lt;<span class="type">uintptr_t</span>*&gt;(basePtr);</span><br><span class="line">    <span class="type">uintptr_t</span>* derivedVptr = <span class="built_in">reinterpret_cast</span>&lt;<span class="type">uintptr_t</span>*&gt;(derivedPtr);</span><br><span class="line"></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;\nVirtual table pointer addresses:&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Base vptr: 0x&quot;</span> &lt;&lt; std::hex &lt;&lt; *baseVptr &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Derived vptr: 0x&quot;</span> &lt;&lt; std::hex &lt;&lt; *derivedVptr &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get vtable entries (function pointers)</span></span><br><span class="line">    <span class="type">uintptr_t</span>* baseVtable = <span class="built_in">reinterpret_cast</span>&lt;<span class="type">uintptr_t</span>*&gt;(*baseVptr);</span><br><span class="line">    <span class="type">uintptr_t</span>* derivedVtable = <span class="built_in">reinterpret_cast</span>&lt;<span class="type">uintptr_t</span>*&gt;(*derivedVptr);</span><br><span class="line"></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;\nVirtual table entries (function pointers):&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Base vtable[0] (func1): 0x&quot;</span> &lt;&lt; baseVtable[<span class="number">0</span>] &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Base vtable[1] (func2): 0x&quot;</span> &lt;&lt; baseVtable[<span class="number">1</span>] &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Base vtable[2] (func3): 0x&quot;</span> &lt;&lt; baseVtable[<span class="number">2</span>] &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Derived vtable[0] (func1): 0x&quot;</span> &lt;&lt; derivedVtable[<span class="number">0</span>] &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Derived vtable[1] (func2): 0x&quot;</span> &lt;&lt; derivedVtable[<span class="number">1</span>] &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Derived vtable[2] (func3): 0x&quot;</span> &lt;&lt; derivedVtable[<span class="number">2</span>] &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">delete</span> basePtr;</span><br><span class="line">    <span class="keyword">delete</span> derivedPtr;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Real Output Analysis:</strong></p>
+<p>Running this code produces the following output:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Base object address: 0000025D266B5460</span><br><span class="line">Derived object address: 0000025D266B1A60</span><br><span class="line"></span><br><span class="line">Virtual table pointer addresses:</span><br><span class="line">Base vptr: 0x7ff755c8bc30</span><br><span class="line">Derived vptr: 0x7ff755c8bc88</span><br><span class="line"></span><br><span class="line">Virtual table entries (function pointers):</span><br><span class="line">Base vtable[0] (func1): 0x7ff755c81195</span><br><span class="line">Base vtable[1] (func2): 0x7ff755c81474</span><br><span class="line">Base vtable[2] (func3): 0x7ff755c81550</span><br><span class="line">Derived vtable[0] (func1): 0x7ff755c81519</span><br><span class="line">Derived vtable[1] (func2): 0x7ff755c811d6</span><br><span class="line">Derived vtable[2] (func3): 0x7ff755c81550</span><br></pre></td></tr></table></figure>
+
+<p><strong>Key Observations from the Output:</strong></p>
+<ol>
+<li><p><strong>Object Locations (Heap Memory)</strong>:</p>
+<ul>
+<li>Base object: <code>0x25D266B5460</code> - allocated on the heap via <code>new</code></li>
+<li>Derived object: <code>0x25D266B1A60</code> - also on the heap</li>
+<li>These addresses are in the user process heap space (relatively low addresses)</li>
+</ul>
+</li>
+<li><p><strong>Virtual Table Locations (Read-Only Memory)</strong>:</p>
+<ul>
+<li>Base vtable: <code>0x7ff755c8bc30</code></li>
+<li>Derived vtable: <code>0x7ff755c8bc88</code></li>
+<li>These addresses are much higher (<code>0x7ff7...</code> range), indicating they’re in the program’s code&#x2F;data segment</li>
+<li>The vtables are <strong>88 bytes apart</strong> (<code>0x7ff755c8bc88 - 0x7ff755c8bc30 = 0x58 = 88 bytes</code>)</li>
+</ul>
+</li>
+<li><p><strong>Function Pointer Addresses</strong>:</p>
+<ul>
+<li>All function addresses are in the same general region (<code>0x7ff755c81...</code>), confirming they’re in the code segment</li>
+<li>Notice that Derived’s function addresses for func1 and func2 are <strong>different</strong> from Base’s, proving that polymorphism works by having different vtable entries</li>
+<li><code>Derived::func3</code> has the exact same address <code>as Base::func3</code> (<code>0x7ff755c81550</code>)</li>
+<li>This is because Derived <strong>didn’t override</strong> func3, so it inherits Base’s implementation</li>
+<li>The compiler optimizes by reusing the same function pointer instead of creating duplicate code</li>
+</ul>
+</li>
+<li><p><strong>Polymorphism vs Inheritance</strong>:</p>
+<p>This output beautifully demonstrates the difference:</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Base Address</th>
+<th>Derived Address</th>
+<th>Overridden?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>func1</td>
+<td>0x7ff755c81195</td>
+<td>0x7ff755c81519</td>
+<td>✅ Yes - Different addresses</td>
+</tr>
+<tr>
+<td>func2</td>
+<td>0x7ff755c81474</td>
+<td>0x7ff755c811d6</td>
+<td>✅ Yes - Different addresses</td>
+</tr>
+<tr>
+<td>func3</td>
+<td>0x7ff755c81550</td>
+<td>0x7ff755c81550</td>
+<td>❌ No - Same address!</td>
+</tr>
+</tbody></table>
+<p><strong>Key Insight</strong>: When a derived class doesn’t override a virtual function, the vtable simply points to the base class implementation. This is efficient—no code duplication, just pointer reuse!</p>
+</li>
+<li><p><strong>Memory Region Summary</strong>:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Heap (Objects):        0x00025Dxxxxxxxx  ← Object instances</span><br><span class="line">Code/Data (vtables):   0x7ff755c8bxxx   ← Virtual tables (static)</span><br><span class="line">Code (Functions):      0x7ff755c81xxx   ← Function implementations</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="2-Verifying-the-Results"><a href="#2-Verifying-the-Results" class="headerlink" title="2. Verifying the Results"></a>2. Verifying the Results</h3><p>We can verify that the vtable pointers are correct by calling the functions through the vtable directly:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdint&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">func1</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;Base::func1()&quot;</span> &lt;&lt; std::endl; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">func2</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;Base::func2()&quot;</span> &lt;&lt; std::endl; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">func3</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;Base::func3()&quot;</span> &lt;&lt; std::endl; &#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">Base</span>() &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span> : <span class="keyword">public</span> Base &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">func1</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;Derived::func1()&quot;</span> &lt;&lt; std::endl; &#125;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">func2</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;Derived::func2()&quot;</span> &lt;&lt; std::endl; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Function pointer type matching virtual function signature</span></span><br><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*VirtualFunc)</span><span class="params">(<span class="type">void</span>*)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Base* basePtr = <span class="keyword">new</span> <span class="built_in">Base</span>();</span><br><span class="line">    Base* derivedPtr = <span class="keyword">new</span> <span class="built_in">Derived</span>();</span><br><span class="line"></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;=== Normal virtual function calls ===&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    basePtr-&gt;<span class="built_in">func1</span>();</span><br><span class="line">    derivedPtr-&gt;<span class="built_in">func1</span>();</span><br><span class="line">    derivedPtr-&gt;<span class="built_in">func3</span>();</span><br><span class="line"></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;\n=== Manual vtable function calls ===&quot;</span> &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get vptr</span></span><br><span class="line">    <span class="type">uintptr_t</span>* baseVptr = *<span class="built_in">reinterpret_cast</span>&lt;<span class="type">uintptr_t</span>**&gt;(basePtr);</span><br><span class="line">    <span class="type">uintptr_t</span>* derivedVptr = *<span class="built_in">reinterpret_cast</span>&lt;<span class="type">uintptr_t</span>**&gt;(derivedPtr);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Call func1 through vtable (first entry)</span></span><br><span class="line">    VirtualFunc baseFunc1 = <span class="built_in">reinterpret_cast</span>&lt;VirtualFunc&gt;(baseVptr[<span class="number">0</span>]);</span><br><span class="line">    VirtualFunc derivedFunc1 = <span class="built_in">reinterpret_cast</span>&lt;VirtualFunc&gt;(derivedVptr[<span class="number">0</span>]);</span><br><span class="line"></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Calling through Base vtable: &quot;</span>;</span><br><span class="line">    <span class="built_in">baseFunc1</span>(basePtr);  <span class="comment">// Pass object pointer as &#x27;this&#x27;</span></span><br><span class="line"></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Calling through Derived vtable: &quot;</span>;</span><br><span class="line">    <span class="built_in">derivedFunc1</span>(derivedPtr);  <span class="comment">// Pass object pointer as &#x27;this&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// Verify func3 as well</span></span><br><span class="line">    VirtualFunc baseFunc3 = <span class="built_in">reinterpret_cast</span>&lt;VirtualFunc&gt;(baseVptr[<span class="number">2</span>]);</span><br><span class="line">    VirtualFunc derivedFunc3 = <span class="built_in">reinterpret_cast</span>&lt;VirtualFunc&gt;(derivedVptr[<span class="number">2</span>]);</span><br><span class="line"></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Calling through Base vtable: &quot;</span>;</span><br><span class="line">    <span class="built_in">baseFunc3</span>(basePtr);  <span class="comment">// Pass object pointer as &#x27;this&#x27;</span></span><br><span class="line"></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Calling through Derived vtable: &quot;</span>;</span><br><span class="line">    <span class="built_in">derivedFunc3</span>(derivedPtr);  <span class="comment">// Pass object pointer as &#x27;this&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">delete</span> basePtr;</span><br><span class="line">    <span class="keyword">delete</span> derivedPtr;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Why Pass the Object Pointer?</strong></p>
+<p>The line <code>baseFunc1(basePtr)</code> might seem confusing, but it reveals how C++ member functions actually work.</p>
+<p><strong>Key Concept: The Hidden <code>this</code> Pointer</strong></p>
+<p>When you write:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">basePtr-&gt;<span class="built_in">func1</span>();  <span class="comment">// Normal call</span></span><br></pre></td></tr></table></figure>
+
+<p>The compiler transforms it into something like:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Base::<span class="built_in">func1</span>(basePtr);  <span class="comment">// What actually happens (conceptually)</span></span><br></pre></td></tr></table></figure>
+
+<p>Every non-static member function has a <strong>hidden first parameter</strong> called <code>this</code>—a pointer to the object being operated on. When we manually call through the vtable, we must explicitly pass this <code>this</code> pointer ourselves.</p>
+<p><strong>Example with Member Data:</strong></p>
+<p>If <code>func1</code> accessed member variables, it would look like:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span> &#123;</span><br><span class="line">    <span class="type">int</span> data = <span class="number">42</span>;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">func1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;data = &quot;</span> &lt;&lt; data &lt;&lt; std::endl;  <span class="comment">// Uses &#x27;this-&gt;data&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// What the compiler sees (conceptual):</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Base::func1</span><span class="params">(Base* <span class="keyword">this</span>)</span> </span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;data = &quot;</span> &lt;&lt; <span class="keyword">this</span>-&gt;data &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Our Manual Call:</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*VirtualFunc)</span><span class="params">(<span class="type">void</span>*)</span></span>;  <span class="comment">// First param is &#x27;this&#x27;</span></span><br><span class="line">VirtualFunc baseFunc1 = <span class="built_in">reinterpret_cast</span>&lt;VirtualFunc&gt;(baseVptr[<span class="number">0</span>]);</span><br><span class="line"><span class="built_in">baseFunc1</span>(basePtr);  <span class="comment">// Explicitly pass &#x27;this&#x27; = basePtr</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Why <code>void*</code> for the function signature?</strong></p>
+<p>We use <code>void (*VirtualFunc)(void*)</code> because:</p>
+<ul>
+<li>The actual signature is <code>void Base::func1(Base* this)</code></li>
+<li>But vtable entries are stored as raw function pointers</li>
+<li>Using <code>void*</code> allows us to pass any object pointer type without complex casting</li>
+</ul>
+<p><strong>What Happens If You Don’t Pass It?</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">baseFunc1</span>();  <span class="comment">// ERROR! Missing the &#x27;this&#x27; pointer</span></span><br><span class="line"><span class="comment">// The function would try to access members at undefined memory</span></span><br><span class="line"><span class="comment">// Result: crash or undefined behavior</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Real Output Analysis:</strong></p>
+<p>Running this verification code produces:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">=== Normal virtual function calls ===</span><br><span class="line">Base::func1()</span><br><span class="line">Derived::func1()</span><br><span class="line">Base::func3()</span><br><span class="line"></span><br><span class="line">=== Manual vtable function calls ===</span><br><span class="line">Calling through Base vtable: Base::func1()</span><br><span class="line">Calling through Derived vtable: Derived::func1()</span><br><span class="line">Calling through Base vtable: Base::func3()</span><br><span class="line">Calling through Derived vtable: Base::func3()</span><br></pre></td></tr></table></figure>
+
+<p><strong>What This Proves:</strong></p>
+<ol>
+<li><p><strong>Manual dispatch works identically to normal calls</strong>: The functions invoked through manual vtable traversal produce the exact same output as compiler-generated virtual calls, confirming our vtable address extraction is correct.</p>
+</li>
+<li><p><strong>Polymorphism verified</strong>:</p>
+<ul>
+<li><code>Derived::func1()</code> is called (not <code>Base::func1()</code>) when using the Derived vtable, proving the vtable entry points to the overridden implementation</li>
+<li>Both manual and normal calls respect the dynamic type</li>
+</ul>
+</li>
+<li><p><strong>Function inheritance confirmed</strong>:</p>
+<ul>
+<li>Both <code>Base vtable</code> and <code>Derived vtable</code> call <code>Base::func3()</code></li>
+<li>This proves our earlier observation: since <code>func3</code> wasn’t overridden, both vtables contain the same function pointer (<code>0x7ff755c81550</code>)</li>
+<li>No code duplication—the compiler efficiently reuses the base implementation</li>
+</ul>
+</li>
+<li><p><strong>The vtable mechanism is transparent</strong>: The behavior is identical whether you use normal virtual function syntax or manually dereference the vtable. This demonstrates that virtual function calls are simply syntactic sugar for vtable lookups.</p>
+</li>
+</ol>
+<h3 id="3-Understanding-Object-Address-Model"><a href="#3-Understanding-Object-Address-Model" class="headerlink" title="3. Understanding Object Address Model"></a>3. Understanding Object Address Model</h3><p>The C++ object memory layout with virtual functions follows this structure:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdint&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">func</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line">    <span class="type">int</span> baseData1 = <span class="number">100</span>;</span><br><span class="line">    <span class="type">int</span> baseData2 = <span class="number">200</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span> : <span class="keyword">public</span> Base &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">func</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;&#125;</span><br><span class="line">    <span class="type">int</span> derivedData1 = <span class="number">300</span>;</span><br><span class="line">    <span class="type">int</span> derivedData2 = <span class="number">400</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">printMemoryLayout</span><span class="params">(<span class="type">void</span>* obj, <span class="type">size_t</span> size)</span> </span>&#123;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span>* ptr = <span class="built_in">static_cast</span>&lt;<span class="type">unsigned</span> <span class="type">char</span>*&gt;(obj);</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Memory layout (hex bytes):&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">size_t</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">        std::cout &lt;&lt; std::hex &lt;&lt; (<span class="type">int</span>)ptr[i] &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">        <span class="keyword">if</span> ((i + <span class="number">1</span>) % <span class="number">8</span> == <span class="number">0</span>) std::cout &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    std::cout &lt;&lt; std::dec &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Base base;</span><br><span class="line">    Derived derived;</span><br><span class="line"></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;=== Base Object Memory Layout ===&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Object size: &quot;</span> &lt;&lt; <span class="built_in">sizeof</span>(Base) &lt;&lt; <span class="string">&quot; bytes&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Object address: &quot;</span> &lt;&lt; &amp;base &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Show member offsets</span></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;\nMember offsets:&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;vptr offset: 0&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;baseData1 offset: &quot;</span> &lt;&lt; <span class="built_in">offsetof</span>(Base, baseData1) &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;baseData2 offset: &quot;</span> &lt;&lt; <span class="built_in">offsetof</span>(Base, baseData2) &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;\n=== Derived Object Memory Layout ===&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Object size: &quot;</span> &lt;&lt; <span class="built_in">sizeof</span>(Derived) &lt;&lt; <span class="string">&quot; bytes&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Object address: &quot;</span> &lt;&lt; &amp;derived &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;\nMember offsets:&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;vptr offset: 0 (inherited)&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;baseData1 offset: &quot;</span> &lt;&lt; <span class="built_in">offsetof</span>(Derived, baseData1) &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;baseData2 offset: &quot;</span> &lt;&lt; <span class="built_in">offsetof</span>(Derived, baseData2) &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;derivedData1 offset: &quot;</span> &lt;&lt; <span class="built_in">offsetof</span>(Derived, derivedData1) &lt;&lt; std::endl;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;derivedData2 offset: &quot;</span> &lt;&lt; <span class="built_in">offsetof</span>(Derived, derivedData2) &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Visualize memory</span></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;\nBase object raw memory:&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    <span class="built_in">printMemoryLayout</span>(&amp;base, <span class="built_in">sizeof</span>(Base));</span><br><span class="line"></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;\nDerived object raw memory:&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    <span class="built_in">printMemoryLayout</span>(&amp;derived, <span class="built_in">sizeof</span>(Derived));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Real Output Analysis:</strong></p>
+<p>Running this code produces:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">=== Base Object Memory Layout ===</span><br><span class="line">Object size: 16 bytes</span><br><span class="line">Object address: 000000CCD9F3F558</span><br><span class="line"></span><br><span class="line">Member offsets:</span><br><span class="line">vptr offset: 0</span><br><span class="line">baseData1 offset: 8</span><br><span class="line">baseData2 offset: 12</span><br><span class="line"></span><br><span class="line">=== Derived Object Memory Layout ===</span><br><span class="line">Object size: 24 bytes</span><br><span class="line">Object address: 000000CCD9F3F588</span><br><span class="line"></span><br><span class="line">Member offsets:</span><br><span class="line">vptr offset: 0 (inherited)</span><br><span class="line">baseData1 offset: 8</span><br><span class="line">baseData2 offset: 12</span><br><span class="line">derivedData1 offset: 16</span><br><span class="line">derivedData2 offset: 20</span><br><span class="line"></span><br><span class="line">Base object raw memory:</span><br><span class="line">Memory layout (hex bytes):</span><br><span class="line">30 bc df b6 f7 7f 0 0</span><br><span class="line">64 0 0 0 c8 0 0 0</span><br><span class="line"></span><br><span class="line">Derived object raw memory:</span><br><span class="line">Memory layout (hex bytes):</span><br><span class="line">58 bc df b6 f7 7f 0 0</span><br><span class="line">64 0 0 0 c8 0 0 0</span><br><span class="line">2c 1 0 0 90 1 0 0</span><br></pre></td></tr></table></figure>
+
+<p><strong>Detailed Memory Analysis:</strong></p>
+<p><strong>1. Object Sizes:</strong></p>
+<ul>
+<li>Base: 16 bytes &#x3D; 8 (vptr) + 4 (baseData1) + 4 (baseData2)</li>
+<li>Derived: 24 bytes &#x3D; 8 (vptr) + 4 (baseData1) + 4 (baseData2) + 4 (derivedData1) + 4 (derivedData2)</li>
+</ul>
+<p><strong>2. Member Offsets (The Memory Layout):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>Base Object</th>
+<th>Derived Object</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0-7</td>
+<td>vptr</td>
+<td>vptr (inherited)</td>
+</tr>
+<tr>
+<td>8-11</td>
+<td>baseData1</td>
+<td>baseData1 (inherited)</td>
+</tr>
+<tr>
+<td>12-15</td>
+<td>baseData2</td>
+<td>baseData2 (inherited)</td>
+</tr>
+<tr>
+<td>16-19</td>
+<td>-</td>
+<td>derivedData1</td>
+</tr>
+<tr>
+<td>20-23</td>
+<td>-</td>
+<td>derivedData2</td>
+</tr>
+</tbody></table>
+<p><strong>3. Raw Memory Breakdown:</strong></p>
+<p><strong>Base Object (<code>30 bc df b6 f7 7f 0 0 | 64 0 0 0 c8 0 0 0</code>):</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Bytes 0-7:   30 bc df b6 f7 7f 00 00</span><br><span class="line">             └────────────────────┘</span><br><span class="line">             vptr = 0x00007ff7b6dfbc30 (little-endian)</span><br><span class="line">             Points to Base vtable</span><br><span class="line"></span><br><span class="line">Bytes 8-11:  64 00 00 00</span><br><span class="line">             └─────────┘</span><br><span class="line">             baseData1 = 0x64 = 100 (decimal)</span><br><span class="line"></span><br><span class="line">Bytes 12-15: c8 00 00 00</span><br><span class="line">             └─────────┘</span><br><span class="line">             baseData2 = 0xc8 = 200 (decimal)</span><br></pre></td></tr></table></figure>
+
+<p><strong>Derived Object (<code>58 bc df b6 f7 7f 0 0 | 64 0 0 0 c8 0 0 0 | 2c 1 0 0 90 1 0 0</code>):</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Bytes 0-7:   58 bc df b6 f7 7f 00 00</span><br><span class="line">             └────────────────────┘</span><br><span class="line">             vptr = 0x00007ff7b6dfbc58 (little-endian)</span><br><span class="line">             Points to Derived vtable (different from Base!)</span><br><span class="line"></span><br><span class="line">Bytes 8-11:  64 00 00 00</span><br><span class="line">             └─────────┘</span><br><span class="line">             baseData1 = 0x64 = 100 (inherited)</span><br><span class="line"></span><br><span class="line">Bytes 12-15: c8 00 00 00</span><br><span class="line">             └─────────┘</span><br><span class="line">             baseData2 = 0xc8 = 200 (inherited)</span><br><span class="line"></span><br><span class="line">Bytes 16-19: 2c 01 00 00</span><br><span class="line">             └─────────┘</span><br><span class="line">             derivedData1 = 0x12c = 300 (decimal)</span><br><span class="line"></span><br><span class="line">Bytes 20-23: 90 01 00 00</span><br><span class="line">             └─────────┘</span><br><span class="line">             derivedData2 = 0x190 = 400 (decimal)</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. Key Observations:</strong></p>
+<ol>
+<li><p><strong>Little-Endian Byte Order</strong>:</p>
+<ul>
+<li>The vptr <code>30 bc df b6 f7 7f 00 00</code> is stored with least significant byte first</li>
+<li>When reconstructed: <code>0x00007ff7b6dfbc30</code></li>
+</ul>
+</li>
+<li><p><strong>Different VPTRs Confirm Distinct Vtables</strong>:</p>
+<ul>
+<li>Base vptr: <code>0x7ff7b6dfbc30</code></li>
+<li>Derived vptr: <code>0x7ff7b6dfbc58</code></li>
+<li>These point to different vtables, enabling polymorphism</li>
+</ul>
+</li>
+<li><p><strong>Data Values Visible in Memory</strong>:</p>
+<ul>
+<li><code>baseData1 = 100</code> appears as <code>64 00 00 00</code> (hex 0x64 &#x3D; decimal 100)</li>
+<li><code>baseData2 = 200</code> appears as <code>c8 00 00 00</code> (hex 0xc8 &#x3D; decimal 200)</li>
+<li><code>derivedData1 = 300</code> appears as <code>2c 01 00 00</code> (hex 0x12c &#x3D; decimal 300)</li>
+<li><code>derivedData2 = 400</code> appears as <code>90 01 00 00</code> (hex 0x190 &#x3D; decimal 400)</li>
+</ul>
+</li>
+<li><p><strong>Memory Layout is Contiguous</strong>:</p>
+<ul>
+<li>No gaps or padding between members (in this case)</li>
+<li>vptr always comes first, then base members, then derived members</li>
+</ul>
+</li>
+<li><p><strong>Stack Allocation</strong>:</p>
+<ul>
+<li>Object addresses (<code>0xCCD9F3F558</code>, <code>0xCCD9F3F588</code>) are stack addresses (local variables)</li>
+<li>Much different from heap addresses we saw earlier with <code>new</code></li>
+</ul>
+</li>
+</ol>
+<p><strong>Memory Layout Visualization:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Base Object (16 bytes on 64-bit):</span><br><span class="line">Offset  |  Content          |  Hex Bytes           |  Value</span><br><span class="line">--------|-------------------|----------------------|------------------</span><br><span class="line">0-7     | vptr              | 30 bc df b6 f7 7f 00 00 | → Base vtable</span><br><span class="line">8-11    | baseData1 (int)   | 64 00 00 00          | 100 (decimal)</span><br><span class="line">12-15   | baseData2 (int)   | c8 00 00 00          | 200 (decimal)</span><br><span class="line"></span><br><span class="line">Derived Object (24 bytes on 64-bit):</span><br><span class="line">Offset  |  Content          |  Hex Bytes           |  Value</span><br><span class="line">--------|-------------------|----------------------|------------------</span><br><span class="line">0-7     | vptr              | 58 bc df b6 f7 7f 00 00 | → Derived vtable</span><br><span class="line">8-11    | baseData1 (int)   | 64 00 00 00          | 100 (inherited)</span><br><span class="line">12-15   | baseData2 (int)   | c8 00 00 00          | 200 (inherited)</span><br><span class="line">16-19   | derivedData1      | 2c 01 00 00          | 300 (decimal)</span><br><span class="line">20-23   | derivedData2      | 90 01 00 00          | 400 (decimal)</span><br></pre></td></tr></table></figure>
+
+<p><strong>Complete VPtr → VTable → Function Diagram:</strong></p>
+<p>This diagram shows the complete relationship between objects, virtual pointers, virtual tables, and actual function code:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">HEAP MEMORY (Objects)                 CODE/DATA SEGMENT (VTables)           CODE SEGMENT (Functions)</span><br><span class="line">══════════════════════                ════════════════════════════          ═══════════════════════</span><br><span class="line"></span><br><span class="line">Base Object @ 0x25D266B5460           Base VTable @ 0x7ff755c8bc30         </span><br><span class="line">┌─────────────────────┐               ┌──────────────────────────┐          ┌─────────────────────┐</span><br><span class="line">│ vptr                │──────────────→│ [0] func1 ptr            │─────────→│ Base::func1()       │</span><br><span class="line">│ 0x7ff755c8bc30      │               │     0x7ff755c81195       │          │ @ 0x7ff755c81195    │</span><br><span class="line">├─────────────────────┤               ├──────────────────────────┤          └─────────────────────┘</span><br><span class="line">│ baseData = 10       │               │ [1] func2 ptr            │─────────→┌─────────────────────┐</span><br><span class="line">└─────────────────────┘               │     0x7ff755c81474       │          │ Base::func2()       │</span><br><span class="line">                                      ├──────────────────────────┤          │ @ 0x7ff755c81474    │</span><br><span class="line">                                      │ [2] func3 ptr            │──┐       └─────────────────────┘</span><br><span class="line">                                      │     0x7ff755c81550       │  │      </span><br><span class="line">                                      ├──────────────────────────┤  │       ┌─────────────────────┐</span><br><span class="line">                                      │ [3] ~Base() ptr          │  │  ┌───→│ Base::func3()       │</span><br><span class="line">                                      └──────────────────────────┘  │  │    │ @ 0x7ff755c81550    │</span><br><span class="line">                                                                    │  │    └─────────────────────┘</span><br><span class="line">Derived Object @ 0x25D266B1A60        Derived VTable @ 0x7ff755c8bc88      │</span><br><span class="line">┌─────────────────────┐               ┌──────────────────────────┐  │       </span><br><span class="line">│ vptr                │──────────────→│ [0] func1 ptr            │─────────→┌─────────────────────┐</span><br><span class="line">│ 0x7ff755c8bc88      │               │     0x7ff755c81519       │          │ Derived::func1()    │</span><br><span class="line">├─────────────────────┤               ├──────────────────────────┤          │ @ 0x7ff755c81519    │</span><br><span class="line">│ baseData = 10       │               │ [1] func2 ptr            │─────────→└─────────────────────┘</span><br><span class="line">├─────────────────────┤               │     0x7ff755c811d6       │          ┌─────────────────────┐</span><br><span class="line">│ derivedData = 20    │               ├──────────────────────────┤          │ Derived::func2()    │</span><br><span class="line">└─────────────────────┘               │ [2] func3 ptr            │──────┘   │ @ 0x7ff755c811d6    │</span><br><span class="line">                                      │     0x7ff755c81550       │ (same!)  └─────────────────────┘</span><br><span class="line">                                      ├──────────────────────────┤          </span><br><span class="line">                                      │ [3] ~Derived() ptr       │          NOTE: Derived::func3</span><br><span class="line">                                      └──────────────────────────┘          uses Base&#x27;s function!</span><br><span class="line">                                                                            No override = pointer reuse</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">KEY INSIGHTS:</span><br><span class="line">═════════════</span><br><span class="line"></span><br><span class="line">1. Each object stores ONE vptr (8 bytes) pointing to its class&#x27;s vtable</span><br><span class="line">2. Vtables are SHARED across all instances of a class (static, read-only memory)</span><br><span class="line">3. Overridden functions → Different addresses (Derived::func1 vs Base::func1)</span><br><span class="line">4. Inherited functions → Same address (both use Base::func3 @ 0x7ff755c81550)</span><br><span class="line">5. Virtual function call: Object → vptr → vtable[index] → actual function code</span><br></pre></td></tr></table></figure>
+
+<p><strong>How a Virtual Function Call Works:</strong></p>
+<p>When you write <code>derivedPtr-&gt;func1()</code>, here’s what happens:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Step 1: Fetch vptr from object</span><br><span class="line">   derivedPtr (0x25D266B1A60)</span><br><span class="line">   ↓</span><br><span class="line">   Read first 8 bytes → vptr = 0x7ff755c8bc88</span><br><span class="line"></span><br><span class="line">Step 2: Index into vtable</span><br><span class="line">   vtable address: 0x7ff755c8bc88</span><br><span class="line">   func1 is at index [0]</span><br><span class="line">   ↓</span><br><span class="line">   vtable[0] = 0x7ff755c81519</span><br><span class="line"></span><br><span class="line">Step 3: Call the function</span><br><span class="line">   Jump to address 0x7ff755c81519</span><br><span class="line">   ↓</span><br><span class="line">   Execute Derived::func1() code</span><br></pre></td></tr></table></figure>
+
+<p>This two-level indirection (object → vtable → function) is what enables runtime polymorphism!</p>
+<p><strong>Visual Diagram:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">Base Object (16 bytes):</span><br><span class="line">┌─────────────────────┐  Offset 0</span><br><span class="line">│ vptr: 0x7ff7b6dfbc30│  ← Points to Base vtable</span><br><span class="line">├─────────────────────┤  Offset 8</span><br><span class="line">│ baseData1: 100      │</span><br><span class="line">├─────────────────────┤  Offset 12</span><br><span class="line">│ baseData2: 200      │</span><br><span class="line">└─────────────────────┘  Offset 16</span><br><span class="line"></span><br><span class="line">Derived Object (24 bytes):</span><br><span class="line">┌─────────────────────┐  Offset 0</span><br><span class="line">│ vptr: 0x7ff7b6dfbc58│  ← Points to Derived vtable (different!)</span><br><span class="line">├─────────────────────┤  Offset 8</span><br><span class="line">│ baseData1: 100      │  ← Inherited from Base</span><br><span class="line">├─────────────────────┤  Offset 12</span><br><span class="line">│ baseData2: 200      │  ← Inherited from Base</span><br><span class="line">├─────────────────────┤  Offset 16</span><br><span class="line">│ derivedData1: 300   │  ← Derived-specific</span><br><span class="line">├─────────────────────┤  Offset 20</span><br><span class="line">│ derivedData2: 400   │  ← Derived-specific</span><br><span class="line">└─────────────────────┘  Offset 24</span><br></pre></td></tr></table></figure>
+
+<p><strong>Why vptr Comes First:</strong></p>
+<p>The vptr is placed at offset 0 for important reasons:</p>
+<ol>
+<li><strong>Consistent Access</strong>: Regardless of the inheritance hierarchy, the vptr is always at the same location (beginning of object)</li>
+<li><strong>Efficient Dispatch</strong>: The compiler knows to look at offset 0 to find the vtable, no calculation needed</li>
+<li><strong>Type Safety</strong>: When casting <code>Base* → Derived*</code>, the vptr remains accessible at the same offset</li>
+</ol>
+<p><strong>What If We Had Multiple Inheritance?</strong></p>
+<p>With multiple inheritance, you might have multiple vptrs at different offsets. But for single inheritance (our case), there’s only one vptr at offset 0, inherited and overwritten by derived classes.</p>
+<h2 id="Explanation"><a href="#Explanation" class="headerlink" title="Explanation"></a>Explanation</h2><h3 id="How-Virtual-Tables-Work"><a href="#How-Virtual-Tables-Work" class="headerlink" title="How Virtual Tables Work"></a>How Virtual Tables Work</h3><ol>
+<li><p><strong>vptr (Virtual Pointer)</strong>: Each object with virtual functions contains a hidden pointer (typically the first member) that points to its class’s vtable.</p>
+</li>
+<li><p><strong>vtable (Virtual Table)</strong>: A static array of function pointers, one per virtual function, stored in the program’s read-only memory. Each class with virtual functions has its own vtable.</p>
+</li>
+<li><p><strong>Dynamic Dispatch</strong>: When calling a virtual function through a pointer&#x2F;reference, the compiler generates code that:</p>
+<ul>
+<li>Dereferences the vptr to get the vtable address</li>
+<li>Indexes into the vtable to get the function pointer</li>
+<li>Calls the function through that pointer</li>
+</ul>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://thousandmiles.github.io/blog/2025/11/09/Investigating-Cpp-Virtual-Table-and-Functions/" data-id="cuidcxWyAq4aXP597Tvj8_TY5" data-title="Investigating C++ Virtual Table and Functions" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/C/" rel="tag">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/Memory-Model/" rel="tag">Memory Model</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/Object-Oriented-Programming/" rel="tag">Object-Oriented Programming</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/Virtual-Functions/" rel="tag">Virtual Functions</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/blog/2025/11/08/What-If-We-Call-main-in-main/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">What If We Call main() in main()</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/Programming/">Programming</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/C/" rel="tag">C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Memory-Model/" rel="tag">Memory Model</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Object-Oriented-Programming/" rel="tag">Object-Oriented Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Virtual-Functions/" rel="tag">Virtual Functions</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/blog/tags/C/" style="font-size: 10px;">C++</a> <a href="/blog/tags/Memory-Model/" style="font-size: 10px;">Memory Model</a> <a href="/blog/tags/Object-Oriented-Programming/" style="font-size: 10px;">Object-Oriented Programming</a> <a href="/blog/tags/Virtual-Functions/" style="font-size: 10px;">Virtual Functions</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/blog/archives/2025/11/">November 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/blog/2025/11/09/Investigating-Cpp-Virtual-Table-and-Functions/">Investigating C++ Virtual Table and Functions</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2025/11/08/What-If-We-Call-main-in-main/">What If We Call main() in main()</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 Forrest Long<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/blog/" class="mobile-nav-link">Home</a>
+  
+    <a href="/blog/categories/Programming" class="mobile-nav-link">Programming</a>
+  
+    <a href="/blog/categories/AI" class="mobile-nav-link">AI</a>
+  
+    <a href="/blog/categories/Projects" class="mobile-nav-link">Projects</a>
+  
+    <a href="/blog/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/blog/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/blog/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/blog/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

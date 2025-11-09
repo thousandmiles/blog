@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>What If We Call main() in main() | Thousand Miles</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="I saw this question on TikTok and couldn’t stop thinking - “What happens if you call main() inside main()?” It’s one of those things you never think about until someone asks, and then you have to try">
+<meta property="og:type" content="article">
+<meta property="og:title" content="What If We Call main() in main()">
+<meta property="og:url" content="https://thousandmiles.github.io/blog/2025/11/08/What-If-We-Call-main-in-main/index.html">
+<meta property="og:site_name" content="Thousand Miles">
+<meta property="og:description" content="I saw this question on TikTok and couldn’t stop thinking - “What happens if you call main() inside main()?” It’s one of those things you never think about until someone asks, and then you have to try">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-11-07T20:04:21.000Z">
+<meta property="article:modified_time" content="2025-11-09T05:04:44.256Z">
+<meta property="article:author" content="Forrest Long">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/blog/atom.xml" title="Thousand Miles" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/blog/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/blog/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/blog/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/blog/" id="logo">Thousand Miles</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/blog/">Home</a>
+        
+          <a class="main-nav-link" href="/blog/categories/Programming">Programming</a>
+        
+          <a class="main-nav-link" href="/blog/categories/AI">AI</a>
+        
+          <a class="main-nav-link" href="/blog/categories/Projects">Projects</a>
+        
+          <a class="main-nav-link" href="/blog/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          
+            <a class="nav-icon" target="_blank" rel="noopener" href="https://github.com/thousandmiles"><span class="fa fa-github"></span></a>
+          
+        
+        
+          <a class="nav-icon" href="/blog/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://thousandmiles.github.io/blog"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-What-If-We-Call-main-in-main" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/blog/2025/11/08/What-If-We-Call-main-in-main/" class="article-date">
+  <time class="dt-published" datetime="2025-11-07T20:04:21.000Z" itemprop="datePublished">2025-11-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/blog/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      What If We Call main() in main()
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>I saw this question on TikTok and couldn’t stop thinking - “What happens if you call <code>main()</code> inside <code>main()</code>?” It’s one of those things you never think about until someone asks, and then you <em>have</em> to try it.</p>
+<p>Turns out, it’s a perfect example of how <code>main()</code> is just a function like any other, and what happens when you push recursion too far.</p>
+<span id="more"></span>
+
+<h2 id="The-Experiment"><a href="#The-Experiment" class="headerlink" title="The Experiment"></a>The Experiment</h2><p>In most programming languages, <code>main()</code> is the entry point of your program. But technically, it’s just a function. So what stops us from calling it recursively?</p>
+<h3 id="C-C-The-Classic-Example"><a href="#C-C-The-Classic-Example" class="headerlink" title="C&#x2F;C++ - The Classic Example"></a>C&#x2F;C++ - The Classic Example</h3><p>In C&#x2F;C++, calling <code>main()</code> recursively is <strong>undefined behavior</strong> according to the standard, but many compilers allow it:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    count++;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Iteration %d: main() called\n&quot;</span>, count);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (count &lt; <span class="number">10</span>) &#123;</span><br><span class="line">        main();  <span class="comment">// Recursive call to main()</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Returning from iteration %d\n&quot;</span>, count);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Output:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Iteration 1: main() called</span><br><span class="line">Iteration 2: main() called</span><br><span class="line">Iteration 3: main() called</span><br><span class="line">Iteration 4: main() called</span><br><span class="line">Iteration 5: main() called</span><br><span class="line">Iteration 6: main() called</span><br><span class="line">Iteration 7: main() called</span><br><span class="line">Iteration 8: main() called</span><br><span class="line">Iteration 9: main() called</span><br><span class="line">Iteration 10: main() called</span><br><span class="line">Returning from iteration 10</span><br><span class="line">Returning from iteration 10</span><br><span class="line">Returning from iteration 10</span><br><span class="line">Returning from iteration 10</span><br><span class="line">Returning from iteration 10</span><br><span class="line">Returning from iteration 10</span><br><span class="line">Returning from iteration 10</span><br><span class="line">Returning from iteration 10</span><br><span class="line">Returning from iteration 10</span><br><span class="line">Returning from iteration 10</span><br></pre></td></tr></table></figure>
+
+<p><strong>What’s happening?</strong></p>
+<ul>
+<li>Each call to <code>main()</code> creates a new stack frame</li>
+<li>Since <code>count</code> is <strong>global</strong>, it keeps incrementing across all calls</li>
+<li>When recursion stops at count&#x3D;10, all 10 stack frames unwind</li>
+<li>Each unwinding frame prints “Returning from iteration 10” (the current value)</li>
+<li>This demonstrates that global variables are shared across all recursive calls!</li>
+</ul>
+<h3 id="Stack-Overflow-Demonstration"><a href="#Stack-Overflow-Demonstration" class="headerlink" title="Stack Overflow Demonstration"></a>Stack Overflow Demonstration</h3><p>Let’s remove the limit and see what happens:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    count++;</span><br><span class="line">    <span class="keyword">if</span> (count % <span class="number">1000</span> == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Depth: %d\n&quot;</span>, count);</span><br><span class="line">    &#125;</span><br><span class="line">    main();  <span class="comment">// Infinite recursion</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Result:</strong> Stack overflow: xxxx (typically after 10,000-100,000 calls depending on your system).</p>
+<h3 id="Python-More-Explicit"><a href="#Python-More-Explicit" class="headerlink" title="Python - More Explicit"></a>Python - More Explicit</h3><p>Python makes this clearer with its recursion limit:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">sys.setrecursionlimit(<span class="number">20</span>)  <span class="comment"># Set a low limit for demonstration</span></span><br><span class="line">count = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="keyword">global</span> count</span><br><span class="line">    count += <span class="number">1</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Iteration <span class="subst">&#123;count&#125;</span>&quot;</span>)</span><br><span class="line">    main()  <span class="comment"># Recursive call</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        main()</span><br><span class="line">    <span class="keyword">except</span> RecursionError <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;\nRecursionError after <span class="subst">&#123;count&#125;</span> calls&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Maximum recursion depth: <span class="subst">&#123;sys.getrecursionlimit()&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><strong>Output:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Iteration 1</span><br><span class="line">Iteration 2</span><br><span class="line">Iteration 3</span><br><span class="line">Iteration 4</span><br><span class="line">Iteration 5</span><br><span class="line">Iteration 6</span><br><span class="line">Iteration 7</span><br><span class="line">Iteration 8</span><br><span class="line">Iteration 9</span><br><span class="line">Iteration 10</span><br><span class="line">Iteration 11</span><br><span class="line">Iteration 12</span><br><span class="line">Iteration 13</span><br><span class="line">Iteration 14</span><br><span class="line">Iteration 15</span><br><span class="line">Iteration 16</span><br><span class="line">Iteration 17</span><br><span class="line"></span><br><span class="line">RecursionError after 18 calls</span><br><span class="line">Maximum recursion depth: 20</span><br></pre></td></tr></table></figure>
+
+<p><strong>Why not 20 iterations?</strong><br>Python’s recursion limit includes internal function calls too. The initial <code>if __name__ == &quot;__main__&quot;</code> check and the try-except block add to the call stack, so the actual limit for our recursive function is slightly less than 20.</p>
+<h2 id="Key-Takeaway"><a href="#Key-Takeaway" class="headerlink" title="Key Takeaway"></a>Key Takeaway</h2><p>Calling <code>main()</code> recursively is problematic:</p>
+<ol>
+<li><strong>Violates C&#x2F;C++ standards</strong> - <code>main()</code> should only be called by the runtime</li>
+<li><strong>Stack overflow risk</strong> - Without a base case, guaranteed crash</li>
+<li><strong>Poor code design</strong> - Use a separate function if you need recursion</li>
+</ol>
+<p><code>main()</code> is just another function. Like any function, recursive calls consume stack space. The stack is finite, so infinite recursion &#x3D; stack overflow.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://thousandmiles.github.io/blog/2025/11/08/What-If-We-Call-main-in-main/" data-id="cuidsx2v6G5zgq-4gR98QVvSN" data-title="What If We Call main() in main()" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/blog/2025/11/09/Investigating-Cpp-Virtual-Table-and-Functions/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Investigating C++ Virtual Table and Functions
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/Programming/">Programming</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/C/" rel="tag">C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Memory-Model/" rel="tag">Memory Model</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Object-Oriented-Programming/" rel="tag">Object-Oriented Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Virtual-Functions/" rel="tag">Virtual Functions</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/blog/tags/C/" style="font-size: 10px;">C++</a> <a href="/blog/tags/Memory-Model/" style="font-size: 10px;">Memory Model</a> <a href="/blog/tags/Object-Oriented-Programming/" style="font-size: 10px;">Object-Oriented Programming</a> <a href="/blog/tags/Virtual-Functions/" style="font-size: 10px;">Virtual Functions</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/blog/archives/2025/11/">November 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/blog/2025/11/09/Investigating-Cpp-Virtual-Table-and-Functions/">Investigating C++ Virtual Table and Functions</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2025/11/08/What-If-We-Call-main-in-main/">What If We Call main() in main()</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 Forrest Long<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/blog/" class="mobile-nav-link">Home</a>
+  
+    <a href="/blog/categories/Programming" class="mobile-nav-link">Programming</a>
+  
+    <a href="/blog/categories/AI" class="mobile-nav-link">AI</a>
+  
+    <a href="/blog/categories/Projects" class="mobile-nav-link">Projects</a>
+  
+    <a href="/blog/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/blog/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/blog/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/blog/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
