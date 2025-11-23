@@ -4,14 +4,23 @@
   <meta charset="utf-8">
   
   
-  <title>Thousand Miles</title>
+  <title>Accelerating Code Analysis with CodeQL MCP Server | Thousand Miles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Thousand Miles">
-<meta property="og:url" content="https://thousandmiles.github.io/blog/index.html">
+  <meta name="description" content="Project OverviewI’m thrilled to introduce the CodeQL MCP Server, a high-performance Model Context Protocol (MCP) server designed to supercharge code analysis and security scanning. By integrating GitH">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Accelerating Code Analysis with CodeQL MCP Server">
+<meta property="og:url" content="https://thousandmiles.github.io/blog/2025/11/23/Accelerating-Code-Analysis-with-CodeQL-MCP-Server/index.html">
 <meta property="og:site_name" content="Thousand Miles">
+<meta property="og:description" content="Project OverviewI’m thrilled to introduce the CodeQL MCP Server, a high-performance Model Context Protocol (MCP) server designed to supercharge code analysis and security scanning. By integrating GitH">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-11-22T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-11-23T02:27:33.207Z">
 <meta property="article:author" content="Forrest Long">
+<meta property="article:tag" content="CodeQL">
+<meta property="article:tag" content="MCP">
+<meta property="article:tag" content="Performance">
+<meta property="article:tag" content="PostgreSQL">
+<meta property="article:tag" content="Security">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternate" href="/blog/atom.xml" title="Thousand Miles" type="application/atom+xml">
@@ -79,9 +88,7 @@
 </header>
 
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-Accelerating-Code-Analysis-with-CodeQL-MCP-Server" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+        <section id="main"><article id="post-Accelerating-Code-Analysis-with-CodeQL-MCP-Server" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/blog/2025/11/23/Accelerating-Code-Analysis-with-CodeQL-MCP-Server/" class="article-date">
   <time class="dt-published" datetime="2025-11-22T16:00:00.000Z" itemprop="datePublished">2025-11-23</time>
@@ -98,8 +105,8 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/blog/2025/11/23/Accelerating-Code-Analysis-with-CodeQL-MCP-Server/">Accelerating Code Analysis with CodeQL MCP Server</a>
+    <h1 class="p-name article-title" itemprop="headline name">
+      Accelerating Code Analysis with CodeQL MCP Server
     </h1>
   
 
@@ -108,11 +115,76 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <h2 id="Project-Overview"><a href="#Project-Overview" class="headerlink" title="Project Overview"></a>Project Overview</h2><p>I’m thrilled to introduce the <strong>CodeQL MCP Server</strong>, a high-performance Model Context Protocol (MCP) server designed to supercharge code analysis and security scanning. By integrating GitHub’s powerful CodeQL engine with a PostgreSQL-backed graph database, this tool enables AI agents to perform complex code queries up to <strong>600x faster</strong> than standard methods.</p>
-        
-          <p class="article-more-link">
-            <a href="/blog/2025/11/23/Accelerating-Code-Analysis-with-CodeQL-MCP-Server/#more">Read More</a>
-          </p>
-        
+<span id="more"></span>
+
+<h3 id="Tech-Stack"><a href="#Tech-Stack" class="headerlink" title="Tech Stack"></a>Tech Stack</h3><ul>
+<li><strong>CodeQL</strong>: The industry-standard semantic code analysis engine.</li>
+<li><strong>Model Context Protocol (MCP)</strong>: The interface for AI tool usage.</li>
+<li><strong>PostgreSQL</strong>: Used as a graph database for instant query responses.</li>
+<li><strong>TypeScript&#x2F;Node.js</strong>: The server implementation.</li>
+<li><strong>Shell Scripts</strong>: For automated setup and environment management.</li>
+</ul>
+<h2 id="Features"><a href="#Features" class="headerlink" title="Features"></a>Features</h2><p>The server offers a dual-mode approach to analysis:</p>
+<ol>
+<li><p><strong>Core Analysis</strong>:</p>
+<ul>
+<li>Create CodeQL databases for multiple languages (JS&#x2F;TS, Python, Java, C&#x2F;C++, Go, etc.).</li>
+<li>Run comprehensive security scans using built-in query suites.</li>
+<li>Cache databases for efficient repeated access.</li>
+</ul>
+</li>
+<li><p><strong>Graph Database (Fast Query Mode)</strong>:</p>
+<ul>
+<li>Builds a PostgreSQL graph index from CodeQL data.</li>
+<li>Enables <strong>instant</strong> queries for call chains, class hierarchies, and function usage.</li>
+<li>drastically reduces latency for interactive AI sessions.</li>
+</ul>
+</li>
+</ol>
+<h2 id="Implementation"><a href="#Implementation" class="headerlink" title="Implementation"></a>Implementation</h2><p>The architecture is designed for speed. While CodeQL is incredibly powerful, its query execution can be slow for real-time applications. This project solves that by extracting the static analysis results into a structured PostgreSQL graph.</p>
+<p><strong>Architecture Flow:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">CodeQL Database (one-time creation)</span><br><span class="line">       ↓</span><br><span class="line">PostgreSQL Graph Index (optional, fast queries)</span><br><span class="line">       ↓</span><br><span class="line">MCP Tools (100-600x faster with index)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Performance-Comparison"><a href="#Performance-Comparison" class="headerlink" title="Performance Comparison"></a>Performance Comparison</h3><table>
+<thead>
+<tr>
+<th align="left">Operation</th>
+<th align="left">Standard CodeQL</th>
+<th align="left">Graph Index (Fast Mode)</th>
+<th align="left">Speedup</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Find function</td>
+<td align="left">15-30s</td>
+<td align="left">&lt;100ms</td>
+<td align="left">~300x</td>
+</tr>
+<tr>
+<td align="left">Find callers</td>
+<td align="left">20-40s</td>
+<td align="left">&lt;100ms</td>
+<td align="left">~400x</td>
+</tr>
+<tr>
+<td align="left">Call chain</td>
+<td align="left">30-60s</td>
+<td align="left">&lt;200ms</td>
+<td align="left">~150x</td>
+</tr>
+</tbody></table>
+<h2 id="Tools-Exposed"><a href="#Tools-Exposed" class="headerlink" title="Tools Exposed"></a>Tools Exposed</h2><p>The server provides a rich set of tools for MCP clients:</p>
+<ul>
+<li><strong>Database Management</strong>: <code>create_database</code>, <code>list_databases</code></li>
+<li><strong>Analysis</strong>: <code>run_query</code>, <code>analyze_security</code>, <code>find_patterns</code></li>
+<li><strong>Graph Tools</strong>: <code>find_function_graph</code>, <code>find_callers_graph</code>, <code>find_call_chain_graph</code>, <code>get_class_hierarchy_graph</code></li>
+</ul>
+<h2 id="Challenges-Solutions"><a href="#Challenges-Solutions" class="headerlink" title="Challenges &amp; Solutions"></a>Challenges &amp; Solutions</h2><p>The primary challenge was bridging the gap between the deep, semantic analysis of CodeQL and the low-latency requirements of an interactive AI assistant. The solution was to treat CodeQL as an extraction engine rather than a query engine for real-time requests, pre-computing the relationships into a relational graph structure optimized for recursive queries.</p>
+<h2 id="Results"><a href="#Results" class="headerlink" title="Results"></a>Results</h2><p>The CodeQL MCP Server transforms how AI agents interact with large codebases. Instead of waiting 30 seconds to find who calls a function, the AI gets the answer instantly. This enables complex reasoning chains—like tracing a user input through multiple function calls to a database query—without timing out or frustrating the user.</p>
+<h2 id="Links"><a href="#Links" class="headerlink" title="Links"></a>Links</h2><ul>
+<li><strong>Source Code:</strong> <a target="_blank" rel="noopener" href="https://github.com/thousandmiles/codeql-mcp-server">https://github.com/thousandmiles/codeql-mcp-server</a></li>
+</ul>
+
       
     </div>
     <footer class="article-footer">
@@ -125,159 +197,19 @@
     </footer>
   </div>
   
-</article>
-
-
-
+    
+<nav id="article-nav">
   
-    <article id="post-Understanding-ELF-Executable-and-Linkable-Format" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/blog/2025/11/15/Understanding-ELF-Executable-and-Linkable-Format/" class="article-date">
-  <time class="dt-published" datetime="2025-11-14T16:00:00.000Z" itemprop="datePublished">2025-11-15</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/blog/categories/Programming/">Programming</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/blog/2025/11/15/Understanding-ELF-Executable-and-Linkable-Format/">Understanding ELF - Executable and Linkable Format</a>
-    </h1>
+    <a href="/blog/2025/11/15/Understanding-ELF-Executable-and-Linkable-Format/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Understanding ELF - Executable and Linkable Format</div>
+    </a>
   
+</nav>
 
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>When you compile a C&#x2F;C++ program on Linux, the resulting binary isn’t just raw machine code—it’s structured as an ELF (Executable and Linkable Format) file. Understanding ELF is essential for low-level programming, debugging, and binary analysis. This article explores what ELF is, its structure, and how to inspect it programmatically.</p>
-        
-          <p class="article-more-link">
-            <a href="/blog/2025/11/15/Understanding-ELF-Executable-and-Linkable-Format/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://thousandmiles.github.io/blog/2025/11/15/Understanding-ELF-Executable-and-Linkable-Format/" data-id="cuidgiHyNy9x1h523XsLiwCvX" data-title="Understanding ELF - Executable and Linkable Format" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/C/" rel="tag">C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/ELF/" rel="tag">ELF</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/Linux/" rel="tag">Linux</a></li></ul>
-
-    </footer>
-  </div>
   
 </article>
-
-
-
-  
-    <article id="post-Investigating-Cpp-Virtual-Table-and-Functions" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/blog/2025/11/09/Investigating-Cpp-Virtual-Table-and-Functions/" class="article-date">
-  <time class="dt-published" datetime="2025-11-09T05:08:08.000Z" itemprop="datePublished">2025-11-09</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/blog/categories/Programming/">Programming</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/blog/2025/11/09/Investigating-Cpp-Virtual-Table-and-Functions/">Investigating C++ Virtual Table and Functions</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="Problem-Challenge"><a href="#Problem-Challenge" class="headerlink" title="Problem&#x2F;Challenge"></a>Problem&#x2F;Challenge</h2><p>Understanding how C++ implements runtime polymorphism through virtual functions is crucial for mastering object-oriented programming. However, the underlying mechanism—the virtual table (vtable)—remains a mystery to many developers. How can we actually observe and verify the vtable structure, locate virtual function pointers, and understand the object memory layout?</p>
-        
-          <p class="article-more-link">
-            <a href="/blog/2025/11/09/Investigating-Cpp-Virtual-Table-and-Functions/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://thousandmiles.github.io/blog/2025/11/09/Investigating-Cpp-Virtual-Table-and-Functions/" data-id="cuid56dAy8TDl_5oxPoEoWFEM" data-title="Investigating C++ Virtual Table and Functions" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/C/" rel="tag">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/Memory-Model/" rel="tag">Memory Model</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/Object-Oriented-Programming/" rel="tag">Object-Oriented Programming</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/Virtual-Functions/" rel="tag">Virtual Functions</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-What-If-We-Call-main-in-main" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/blog/2025/11/08/What-If-We-Call-main-in-main/" class="article-date">
-  <time class="dt-published" datetime="2025-11-07T20:04:21.000Z" itemprop="datePublished">2025-11-08</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/blog/categories/Programming/">Programming</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/blog/2025/11/08/What-If-We-Call-main-in-main/">What If We Call main() in main()</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>I saw this question on TikTok and couldn’t stop thinking - “What happens if you call <code>main()</code> inside <code>main()</code>?” It’s one of those things you never think about until someone asks, and then you <em>have</em> to try it.</p>
-<p>Turns out, it’s a perfect example of how <code>main()</code> is just a function like any other, and what happens when you push recursion too far.</p>
-        
-          <p class="article-more-link">
-            <a href="/blog/2025/11/08/What-If-We-Call-main-in-main/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://thousandmiles.github.io/blog/2025/11/08/What-If-We-Call-main-in-main/" data-id="cuidRTxygyV3kMgniw9zkSvt9" data-title="What If We Call main() in main()" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/C/" rel="tag">C++</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
 
 
 </section>
