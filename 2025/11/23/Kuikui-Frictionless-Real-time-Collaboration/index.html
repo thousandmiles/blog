@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Kuikui: Frictionless Real-time Collaboration | Thousand Miles</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="The Philosophy: Disposable by DesignIn a world of account fatigue and persistent tracking, Kuikui takes adifferent approach. It is an anonymous, ephemeral collaboration tool designedfor the “here and">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kuikui: Frictionless Real-time Collaboration">
+<meta property="og:url" content="https://thousandmiles.github.io/blog/2025/11/23/Kuikui-Frictionless-Real-time-Collaboration/index.html">
+<meta property="og:site_name" content="Thousand Miles">
+<meta property="og:description" content="The Philosophy: Disposable by DesignIn a world of account fatigue and persistent tracking, Kuikui takes adifferent approach. It is an anonymous, ephemeral collaboration tool designedfor the “here and">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://private-user-images.githubusercontent.com/69280552/517788747-610c6704-f9c2-4440-87ac-d8a3891d55b4.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjM4Njc4NDYsIm5iZiI6MTc2Mzg2NzU0NiwicGF0aCI6Ii82OTI4MDU1Mi81MTc3ODg3NDctNjEwYzY3MDQtZjljMi00NDQwLTg3YWMtZDhhMzg5MWQ1NWI0LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMjMlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTIzVDAzMTIyNlomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWUxNzYwOGU1MzM4NWQ4NWZkYzc1NTVjMDQxNzZiMmEwZDY2YjQzMzFiZjE1MjM1OGQ0ZWNhZTQ3ZDAzZmEwNzUmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.HtuX5XQIpW-UtE3bFQD4224C3gs7F9G1kZcA7EdpUE0">
+<meta property="og:image" content="https://private-user-images.githubusercontent.com/69280552/517788709-0c8d8a19-6ac1-4e77-a8af-afe3c8e05064.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjM4NjgwODksIm5iZiI6MTc2Mzg2Nzc4OSwicGF0aCI6Ii82OTI4MDU1Mi81MTc3ODg3MDktMGM4ZDhhMTktNmFjMS00ZTc3LWE4YWYtYWZlM2M4ZTA1MDY0LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMjMlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTIzVDAzMTYyOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTNjYTY4Y2MzZGI2N2ViOTljZDJkYzFlNGRiYzYwYTM5NmNmY2I0OTZhMGQ1MmVkNGE5ZDgzMjgzYjFjODVjMzgmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.SSxv_TcPr9KC4twGw5Pcv20aaCV6WWabDMr_El2buqg">
+<meta property="og:image" content="https://private-user-images.githubusercontent.com/69280552/517788725-6f39c96c-57f9-45d8-b749-a5661cdd722e.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjM4NjgwODksIm5iZiI6MTc2Mzg2Nzc4OSwicGF0aCI6Ii82OTI4MDU1Mi81MTc3ODg3MjUtNmYzOWM5NmMtNTdmOS00NWQ4LWI3NDktYTU2NjFjZGQ3MjJlLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMjMlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTIzVDAzMTYyOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWVlODBkNDBkZTRhNzViN2NhNDlhZjE3ODgwNTBmMGJkMDliYTNjYWMwMzI1OTk2MDZkOGUyOTYzZDdhZTU0NWEmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.VZndt4YCGknkW93og-9KoXUaFSPxv80dEblCA7NYbng">
+<meta property="og:image" content="https://private-user-images.githubusercontent.com/69280552/517788771-8223f880-02d2-441f-b4db-593839f287f1.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjM4NjgwODksIm5iZiI6MTc2Mzg2Nzc4OSwicGF0aCI6Ii82OTI4MDU1Mi81MTc3ODg3NzEtODIyM2Y4ODAtMDJkMi00NDFmLWI0ZGItNTkzODM5ZjI4N2YxLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMjMlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTIzVDAzMTYyOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTU4OTc0MzQzNWVmNzZiNTIzMjY1M2MxMDBiYjQ2NzBmMWQwMDE5MTQxMTk3M2UxMDBlNWRhNTgzOGE4OTViNDUmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.OdA5msUtxJGIAS8ih3Ft_yroX5YsEmWB5WAc8wZD3WM">
+<meta property="og:image" content="https://private-user-images.githubusercontent.com/69280552/517788790-47c879cb-9c79-47d4-aa91-80f31b7a502e.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjM4NjgwODksIm5iZiI6MTc2Mzg2Nzc4OSwicGF0aCI6Ii82OTI4MDU1Mi81MTc3ODg3OTAtNDdjODc5Y2ItOWM3OS00N2Q0LWFhOTEtODBmMzFiN2E1MDJlLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMjMlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTIzVDAzMTYyOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTIxZjQxNGFkYjQzZWRiZmZlOGExMmNiZDUwMWJmODM1MThkMDliYmE2OGRhMjAzY2IwN2M4MDlmZDgyY2Q3YWEmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.D22_-HfTXYwudw-ycmpEh84OrbilFeH2A6D3pRCgWWE">
+<meta property="og:image" content="https://private-user-images.githubusercontent.com/69280552/517788786-5d3df428-d3ea-4ec9-ba32-e24135026ed4.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjM4NjgwODksIm5iZiI6MTc2Mzg2Nzc4OSwicGF0aCI6Ii82OTI4MDU1Mi81MTc3ODg3ODYtNWQzZGY0MjgtZDNlYS00ZWM5LWJhMzItZTI0MTM1MDI2ZWQ0LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMjMlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTIzVDAzMTYyOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWYxZmE0ZWFhMjY2NGI4ODliNTZhZGMyODM3ZmFhMTY3M2U0OWEyMWY4NGEwYzFjOGQ3YTdhNjdkMDdmNzFmOTgmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.xUqVxw_IDrzOjSZ9Q33VzNX6qyEysIl66uKN4Yjy2q0">
+<meta property="article:published_time" content="2025-11-22T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-11-23T03:29:23.423Z">
+<meta property="article:author" content="Forrest Long">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://private-user-images.githubusercontent.com/69280552/517788747-610c6704-f9c2-4440-87ac-d8a3891d55b4.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjM4Njc4NDYsIm5iZiI6MTc2Mzg2NzU0NiwicGF0aCI6Ii82OTI4MDU1Mi81MTc3ODg3NDctNjEwYzY3MDQtZjljMi00NDQwLTg3YWMtZDhhMzg5MWQ1NWI0LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMjMlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTIzVDAzMTIyNlomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWUxNzYwOGU1MzM4NWQ4NWZkYzc1NTVjMDQxNzZiMmEwZDY2YjQzMzFiZjE1MjM1OGQ0ZWNhZTQ3ZDAzZmEwNzUmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.HtuX5XQIpW-UtE3bFQD4224C3gs7F9G1kZcA7EdpUE0">
+  
+    <link rel="alternate" href="/blog/atom.xml" title="Thousand Miles" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/blog/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/blog/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/blog/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/blog/" id="logo">Thousand Miles</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/blog/">Home</a>
+        
+          <a class="main-nav-link" href="/blog/categories/Programming">Programming</a>
+        
+          <a class="main-nav-link" href="/blog/categories/AI">AI</a>
+        
+          <a class="main-nav-link" href="/blog/categories/Projects">Projects</a>
+        
+          <a class="main-nav-link" href="/blog/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          
+            <a class="nav-icon" target="_blank" rel="noopener" href="https://github.com/thousandmiles"><span class="fa fa-github"></span></a>
+          
+        
+        
+          <a class="nav-icon" href="/blog/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://thousandmiles.github.io/blog"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-Kuikui-Frictionless-Real-time-Collaboration" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/blog/2025/11/23/Kuikui-Frictionless-Real-time-Collaboration/" class="article-date">
+  <time class="dt-published" datetime="2025-11-22T16:00:00.000Z" itemprop="datePublished">2025-11-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/blog/categories/Projects/">Projects</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Kuikui: Frictionless Real-time Collaboration
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="The-Philosophy-Disposable-by-Design"><a href="#The-Philosophy-Disposable-by-Design" class="headerlink" title="The Philosophy: Disposable by Design"></a>The Philosophy: Disposable by Design</h2><p>In a world of account fatigue and persistent tracking, <strong>Kuikui</strong> takes a<br>different approach. It is an anonymous, ephemeral collaboration tool designed<br>for the “here and now.”</p>
+<p>The core idea is simple: <strong>Click, Share, Collaborate.</strong></p>
+<ul>
+<li><strong>No Accounts:</strong> Identity is temporary.</li>
+<li><strong>No Database:</strong> Data lives only as long as the session.</li>
+<li><strong>No Friction:</strong> A URL is all you need.</li>
+</ul>
+<p>Whether it’s a quick code interview, a brainstorming session, or just showing a<br>friend a snippet of text, Kuikui provides a clean slate that vanishes when<br>you’re done.</p>
+<span id="more"></span>
+
+<h2 id="Architecture-Developer-Experience-DX"><a href="#Architecture-Developer-Experience-DX" class="headerlink" title="Architecture &amp; Developer Experience (DX)"></a>Architecture &amp; Developer Experience (DX)</h2><p>Building a real-time app is complex, but setting it up shouldn’t be. We<br>prioritized a seamless Developer Experience (DX) using a <strong>Monorepo</strong> structure<br>with robust tooling.</p>
+<h3 id="1-Monorepo-Strategy"><a href="#1-Monorepo-Strategy" class="headerlink" title="1. Monorepo Strategy"></a>1. Monorepo Strategy</h3><p>We use <strong>npm workspaces</strong> to keep the <code>backend</code> and <code>frontend</code> in sync while<br>maintaining separation of concerns. This allows us to share TypeScript<br>definitions directly, ensuring that the frontend and backend always speak the<br>same language.</p>
+<h3 id="2-Automated-Workflows-“Rich-Scripts”"><a href="#2-Automated-Workflows-“Rich-Scripts”" class="headerlink" title="2. Automated Workflows (“Rich Scripts”)"></a>2. Automated Workflows (“Rich Scripts”)</h3><p>We believe that <code>npm run dev</code> should just work. To achieve this, we built custom<br>tooling to handle the common annoyances of full-stack development.</p>
+<p><strong>The “One Command” Experience:</strong> When a developer runs <code>npm run dev</code>, a chain<br>of automated scripts executes:</p>
+<ol>
+<li><strong>Port Cleanup:</strong> <code>scripts/port-cleanup.js</code> automatically detects and kills<br>any zombie processes occupying ports 3001 or 5173. No more <code>EADDRINUSE</code><br>errors!</li>
+<li><strong>Environment Setup:</strong> <code>scripts/env-setup.js</code> ensures <code>.env</code> files exist and<br>are populated with safe defaults.</li>
+<li><strong>Validation:</strong> Checks that all required variables are present.</li>
+<li><strong>Concurrency:</strong> Finally, it launches both servers in parallel.</li>
+</ol>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// package.json</span></span><br><span class="line"><span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;dev&quot;</span><span class="punctuation">:</span> <span class="string">&quot;npm run port:cleanup &amp;&amp; npm run env:setup &amp;&amp; npm run env:validate &amp;&amp; concurrently ...&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Code-Snippets"><a href="#Code-Snippets" class="headerlink" title="Code Snippets"></a>Code Snippets</h2><h3 id="Type-Safety-Across-Boundaries"><a href="#Type-Safety-Across-Boundaries" class="headerlink" title="Type Safety Across Boundaries"></a>Type Safety Across Boundaries</h3><p>One of the biggest sources of bugs in full-stack apps is the API contract<br>drifting between client and server. By sharing our <code>types</code> package, we enforce<br>strict contracts.</p>
+<p>If the backend changes the <code>JoinRoomRequest</code> interface, the frontend build will<br>immediately fail, catching bugs at compile time rather than runtime.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// shared/types/index.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">interface</span> <span class="title class_">JoinRoomRequest</span> &#123;</span><br><span class="line">  <span class="attr">roomId</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">nickname</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">userId</span>?: <span class="built_in">string</span>; <span class="comment">// Optional: for user persistence across sessions</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Real-time-Engine-Taming-the-WebSocket"><a href="#Real-time-Engine-Taming-the-WebSocket" class="headerlink" title="Real-time Engine: Taming the WebSocket"></a>Real-time Engine: Taming the WebSocket</h3><p>The heart of Kuikui is <strong>Y.js</strong> (CRDT) over <strong>Socket.IO</strong>. A naive<br>implementation would send a socket event for every single keystroke, which<br>scales poorly.</p>
+<p>We implemented a <strong>Smart Batching Layer</strong> in our <code>SocketProvider</code>. It buffers<br>high-frequency updates (like cursor movements) and coalesces them into single<br>payloads, significantly reducing network overhead without compromising the<br>“real-time” feel.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// frontend/src/services/socketProvider.ts</span></span><br><span class="line"><span class="comment">// Intelligent batching of document updates</span></span><br><span class="line"><span class="variable language_">this</span>.<span class="property">doc</span>.<span class="title function_">on</span>(<span class="string">&#x27;update&#x27;</span>, <span class="function">(<span class="params"><span class="attr">update</span>: <span class="title class_">Uint8Array</span></span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (!<span class="variable language_">this</span>.<span class="property">isConnected</span>) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">pendingDocUpdates</span>.<span class="title function_">push</span>(update);</span><br><span class="line">  <span class="comment">// Debounce: Wait 250ms to gather more keystrokes before sending</span></span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">docFlushTimer</span> ??= <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> <span class="variable language_">this</span>.<span class="title function_">flushDocUpdates</span>(), <span class="number">250</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="Gallery"><a href="#Gallery" class="headerlink" title="Gallery"></a>Gallery</h2><h3 id="Initial-Home-Page"><a href="#Initial-Home-Page" class="headerlink" title="Initial Home Page"></a>Initial Home Page</h3><p><img src="https://private-user-images.githubusercontent.com/69280552/517788747-610c6704-f9c2-4440-87ac-d8a3891d55b4.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjM4Njc4NDYsIm5iZiI6MTc2Mzg2NzU0NiwicGF0aCI6Ii82OTI4MDU1Mi81MTc3ODg3NDctNjEwYzY3MDQtZjljMi00NDQwLTg3YWMtZDhhMzg5MWQ1NWI0LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMjMlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTIzVDAzMTIyNlomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWUxNzYwOGU1MzM4NWQ4NWZkYzc1NTVjMDQxNzZiMmEwZDY2YjQzMzFiZjE1MjM1OGQ0ZWNhZTQ3ZDAzZmEwNzUmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.HtuX5XQIpW-UtE3bFQD4224C3gs7F9G1kZcA7EdpUE0" alt="Initial Home Page"></p>
+<h3 id="Create-a-Room"><a href="#Create-a-Room" class="headerlink" title="Create a Room"></a>Create a Room</h3><p><img src="https://private-user-images.githubusercontent.com/69280552/517788709-0c8d8a19-6ac1-4e77-a8af-afe3c8e05064.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjM4NjgwODksIm5iZiI6MTc2Mzg2Nzc4OSwicGF0aCI6Ii82OTI4MDU1Mi81MTc3ODg3MDktMGM4ZDhhMTktNmFjMS00ZTc3LWE4YWYtYWZlM2M4ZTA1MDY0LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMjMlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTIzVDAzMTYyOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTNjYTY4Y2MzZGI2N2ViOTljZDJkYzFlNGRiYzYwYTM5NmNmY2I0OTZhMGQ1MmVkNGE5ZDgzMjgzYjFjODVjMzgmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.SSxv_TcPr9KC4twGw5Pcv20aaCV6WWabDMr_El2buqg" alt="Create a Room"></p>
+<h3 id="Send-Receive-Message"><a href="#Send-Receive-Message" class="headerlink" title="Send &amp; Receive Message"></a>Send &amp; Receive Message</h3><p><img src="https://private-user-images.githubusercontent.com/69280552/517788725-6f39c96c-57f9-45d8-b749-a5661cdd722e.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjM4NjgwODksIm5iZiI6MTc2Mzg2Nzc4OSwicGF0aCI6Ii82OTI4MDU1Mi81MTc3ODg3MjUtNmYzOWM5NmMtNTdmOS00NWQ4LWI3NDktYTU2NjFjZGQ3MjJlLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMjMlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTIzVDAzMTYyOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWVlODBkNDBkZTRhNzViN2NhNDlhZjE3ODgwNTBmMGJkMDliYTNjYWMwMzI1OTk2MDZkOGUyOTYzZDdhZTU0NWEmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.VZndt4YCGknkW93og-9KoXUaFSPxv80dEblCA7NYbng" alt="Send Message"><br><img src="https://private-user-images.githubusercontent.com/69280552/517788771-8223f880-02d2-441f-b4db-593839f287f1.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjM4NjgwODksIm5iZiI6MTc2Mzg2Nzc4OSwicGF0aCI6Ii82OTI4MDU1Mi81MTc3ODg3NzEtODIyM2Y4ODAtMDJkMi00NDFmLWI0ZGItNTkzODM5ZjI4N2YxLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMjMlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTIzVDAzMTYyOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTU4OTc0MzQzNWVmNzZiNTIzMjY1M2MxMDBiYjQ2NzBmMWQwMDE5MTQxMTk3M2UxMDBlNWRhNTgzOGE4OTViNDUmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.OdA5msUtxJGIAS8ih3Ft_yroX5YsEmWB5WAc8wZD3WM" alt="Receive Message"></p>
+<h3 id="Editor-Mode"><a href="#Editor-Mode" class="headerlink" title="Editor Mode"></a>Editor Mode</h3><p><img src="https://private-user-images.githubusercontent.com/69280552/517788790-47c879cb-9c79-47d4-aa91-80f31b7a502e.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjM4NjgwODksIm5iZiI6MTc2Mzg2Nzc4OSwicGF0aCI6Ii82OTI4MDU1Mi81MTc3ODg3OTAtNDdjODc5Y2ItOWM3OS00N2Q0LWFhOTEtODBmMzFiN2E1MDJlLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMjMlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTIzVDAzMTYyOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTIxZjQxNGFkYjQzZWRiZmZlOGExMmNiZDUwMWJmODM1MThkMDliYmE2OGRhMjAzY2IwN2M4MDlmZDgyY2Q3YWEmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.D22_-HfTXYwudw-ycmpEh84OrbilFeH2A6D3pRCgWWE" alt="Editor Mode"></p>
+<h3 id="Collaboration"><a href="#Collaboration" class="headerlink" title="Collaboration"></a>Collaboration</h3><p><img src="https://private-user-images.githubusercontent.com/69280552/517788786-5d3df428-d3ea-4ec9-ba32-e24135026ed4.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjM4NjgwODksIm5iZiI6MTc2Mzg2Nzc4OSwicGF0aCI6Ii82OTI4MDU1Mi81MTc3ODg3ODYtNWQzZGY0MjgtZDNlYS00ZWM5LWJhMzItZTI0MTM1MDI2ZWQ0LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMjMlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTIzVDAzMTYyOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWYxZmE0ZWFhMjY2NGI4ODliNTZhZGMyODM3ZmFhMTY3M2U0OWEyMWY4NGEwYzFjOGQ3YTdhNjdkMDdmNzFmOTgmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.xUqVxw_IDrzOjSZ9Q33VzNX6qyEysIl66uKN4Yjy2q0" alt="Collaboration"></p>
+<h2 id="Refactoring-Roadmap-Scaling-Up"><a href="#Refactoring-Roadmap-Scaling-Up" class="headerlink" title="Refactoring Roadmap: Scaling Up"></a>Refactoring Roadmap: Scaling Up</h2><p>While the current implementation is perfect for a “hackathon” or small team<br>usage, we have a clear vision for scaling Kuikui to enterprise levels:</p>
+<ol>
+<li><strong>Persistence Layer (Redis):</strong> Currently, room state is in-memory. We plan<br>to introduce Redis to persist room state, allowing sessions to survive<br>server restarts.</li>
+<li><strong>Horizontal Scaling:</strong> By using the <strong>Socket.IO Redis Adapter</strong>, we can<br>distribute rooms across multiple backend nodes, allowing us to support<br>thousands of concurrent users.</li>
+<li><strong>E2E Testing:</strong> We have solid unit test coverage (92% backend), but<br>real-time apps need real-browser testing. We are planning to integrate<br><strong>Playwright</strong> to simulate multi-user collaboration scenarios automatically.</li>
+</ol>
+<h2 id="Results"><a href="#Results" class="headerlink" title="Results"></a>Results</h2><p>Kuikui proves that you don’t need a heavy tech stack to build powerful<br>collaboration tools. By focusing on the core user experience and leveraging the<br>right libraries (Y.js, Socket.IO), we built a tool that feels magic to use.</p>
+<p>We maintain high test coverage to ensure reliability:</p>
+<h3 id="Backend-Coverage"><a href="#Backend-Coverage" class="headerlink" title="Backend Coverage"></a>Backend Coverage</h3><table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Percentage</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Statements</td>
+<td>92.93%</td>
+</tr>
+<tr>
+<td>Branches</td>
+<td>85.62%</td>
+</tr>
+<tr>
+<td>Functions</td>
+<td>91.11%</td>
+</tr>
+<tr>
+<td>Lines</td>
+<td>92.93%</td>
+</tr>
+</tbody></table>
+<h3 id="Frontend-Coverage"><a href="#Frontend-Coverage" class="headerlink" title="Frontend Coverage"></a>Frontend Coverage</h3><table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Percentage</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Statements</td>
+<td>76.58%</td>
+</tr>
+<tr>
+<td>Branches</td>
+<td>83.79%</td>
+</tr>
+<tr>
+<td>Functions</td>
+<td>71.05%</td>
+</tr>
+<tr>
+<td>Lines</td>
+<td>76.58%</td>
+</tr>
+</tbody></table>
+<h2 id="Links"><a href="#Links" class="headerlink" title="Links"></a>Links</h2><ul>
+<li><strong>Source Code:</strong> <a target="_blank" rel="noopener" href="https://github.com/thousandmiles/kuikui">GitHub Repository</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://thousandmiles.github.io/blog/2025/11/23/Kuikui-Frictionless-Real-time-Collaboration/" data-id="cuidH1YhlTZtADStkScIAWNxS" data-title="Kuikui: Frictionless Real-time Collaboration" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/blog/2025/11/23/Accelerating-Code-Analysis-with-CodeQL-MCP-Server/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Accelerating Code Analysis with CodeQL MCP Server
+        
+      </div>
+    </a>
+  
+  
+    <a href="/blog/2025/11/15/Understanding-ELF-Executable-and-Linkable-Format/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Understanding ELF - Executable and Linkable Format</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/Programming/">Programming</a></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/Projects/">Projects</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/C/" rel="tag">C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/C/" rel="tag">C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/CodeQL/" rel="tag">CodeQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/ELF/" rel="tag">ELF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/LSP/" rel="tag">LSP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/MCP/" rel="tag">MCP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Memory-Model/" rel="tag">Memory Model</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Object-Oriented-Programming/" rel="tag">Object-Oriented Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/PostgreSQL/" rel="tag">PostgreSQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Security/" rel="tag">Security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Tooling/" rel="tag">Tooling</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/TypeScript/" rel="tag">TypeScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Virtual-Functions/" rel="tag">Virtual Functions</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/blog/tags/AI/" style="font-size: 10px;">AI</a> <a href="/blog/tags/C/" style="font-size: 10px;">C</a> <a href="/blog/tags/C/" style="font-size: 20px;">C++</a> <a href="/blog/tags/CodeQL/" style="font-size: 10px;">CodeQL</a> <a href="/blog/tags/ELF/" style="font-size: 10px;">ELF</a> <a href="/blog/tags/LSP/" style="font-size: 10px;">LSP</a> <a href="/blog/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/blog/tags/MCP/" style="font-size: 20px;">MCP</a> <a href="/blog/tags/Memory-Model/" style="font-size: 10px;">Memory Model</a> <a href="/blog/tags/Object-Oriented-Programming/" style="font-size: 10px;">Object-Oriented Programming</a> <a href="/blog/tags/PostgreSQL/" style="font-size: 10px;">PostgreSQL</a> <a href="/blog/tags/Security/" style="font-size: 10px;">Security</a> <a href="/blog/tags/Tooling/" style="font-size: 10px;">Tooling</a> <a href="/blog/tags/TypeScript/" style="font-size: 10px;">TypeScript</a> <a href="/blog/tags/Virtual-Functions/" style="font-size: 10px;">Virtual Functions</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/blog/archives/2025/11/">November 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/blog/2025/11/23/Introducing-Semantic-Code-MCP-Server/">Introducing Semantic Code MCP Server</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2025/11/23/Accelerating-Code-Analysis-with-CodeQL-MCP-Server/">Accelerating Code Analysis with CodeQL MCP Server</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2025/11/23/Kuikui-Frictionless-Real-time-Collaboration/">Kuikui: Frictionless Real-time Collaboration</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2025/11/15/Understanding-ELF-Executable-and-Linkable-Format/">Understanding ELF - Executable and Linkable Format</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2025/11/09/Investigating-Cpp-Virtual-Table-and-Functions/">Investigating C++ Virtual Table and Functions</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 Forrest Long<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/blog/" class="mobile-nav-link">Home</a>
+  
+    <a href="/blog/categories/Programming" class="mobile-nav-link">Programming</a>
+  
+    <a href="/blog/categories/AI" class="mobile-nav-link">AI</a>
+  
+    <a href="/blog/categories/Projects" class="mobile-nav-link">Projects</a>
+  
+    <a href="/blog/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/blog/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/blog/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/blog/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
