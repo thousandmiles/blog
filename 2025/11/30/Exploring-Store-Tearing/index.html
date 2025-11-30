@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Exploring Store Tearing | Thousand Miles</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Store tearing is a fascinating concurrency bug that occurs when a processor cannot update a memory location in a single atomic instruction. If a thread reads that memory location while the write is on">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Exploring Store Tearing">
+<meta property="og:url" content="https://thousandmiles.github.io/blog/2025/11/30/Exploring-Store-Tearing/index.html">
+<meta property="og:site_name" content="Thousand Miles">
+<meta property="og:description" content="Store tearing is a fascinating concurrency bug that occurs when a processor cannot update a memory location in a single atomic instruction. If a thread reads that memory location while the write is on">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-11-30T02:00:00.000Z">
+<meta property="article:modified_time" content="2025-11-30T06:40:08.948Z">
+<meta property="article:author" content="Forrest Long">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="Concurrency">
+<meta property="article:tag" content="Memory-Model">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/blog/atom.xml" title="Thousand Miles" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/blog/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/blog/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/blog/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/blog/" id="logo">Thousand Miles</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/blog/">Home</a>
+        
+          <a class="main-nav-link" href="/blog/categories/Programming">Programming</a>
+        
+          <a class="main-nav-link" href="/blog/categories/AI">AI</a>
+        
+          <a class="main-nav-link" href="/blog/categories/Projects">Projects</a>
+        
+          <a class="main-nav-link" href="/blog/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          
+            <a class="nav-icon" target="_blank" rel="noopener" href="https://github.com/thousandmiles"><span class="fa fa-github"></span></a>
+          
+        
+        
+          <a class="nav-icon" href="/blog/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://thousandmiles.github.io/blog"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-Exploring-Store-Tearing" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/blog/2025/11/30/Exploring-Store-Tearing/" class="article-date">
+  <time class="dt-published" datetime="2025-11-30T02:00:00.000Z" itemprop="datePublished">2025-11-30</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/blog/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Exploring Store Tearing
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Store tearing is a fascinating concurrency bug that occurs when a processor cannot update a memory location in a single atomic instruction. If a thread reads that memory location while the write is only partially complete, it sees a “torn” value—a mix of the old and new data.</p>
+<p>Let’s dive into what this looks like and how to prevent it.</p>
+<span id="more"></span>
+
+<h2 id="What-is-Store-Tearing"><a href="#What-is-Store-Tearing" class="headerlink" title="What is Store Tearing?"></a>What is Store Tearing?</h2><p>In modern multi-threaded programming, we often assume that writing to a variable is an instantaneous event. We think: “I set <code>x = 5</code>, so <code>x</code> is either the old value or <code>5</code>.”</p>
+<p>However, hardware doesn’t always work that way. If the data type you are writing is larger than the processor’s native word size, or if the data is not aligned properly in memory, the processor might have to issue multiple write instructions to update the value.</p>
+<p>If a context switch happens or another core reads that memory address <em>between</em> those write instructions, the reader will see a value that never actually existed in the program logic.</p>
+<h2 id="A-Conceptual-Example"><a href="#A-Conceptual-Example" class="headerlink" title="A Conceptual Example"></a>A Conceptual Example</h2><p>Imagine a 64-bit integer variable initialized to <code>0x0000000000000000</code>.<br>We have two threads:</p>
+<ol>
+<li><strong>Thread Writer</strong>: Writes <code>0xFFFFFFFFFFFFFFFF</code> (-1) to the variable.</li>
+<li><strong>Thread Reader</strong>: Reads the variable.</li>
+</ol>
+<p>On a 32-bit architecture (or a 64-bit architecture handling an unaligned write), the processor might split the 64-bit write into two 32-bit stores:</p>
+<ol>
+<li>Store <code>0xFFFFFFFF</code> to the lower 32 bits.</li>
+<li>Store <code>0xFFFFFFFF</code> to the upper 32 bits.</li>
+</ol>
+<p>If the <strong>Reader</strong> reads after step 1 but before step 2, it sees:<br><code>0x00000000FFFFFFFFFF</code></p>
+<p>This value is neither the starting value (<code>0</code>) nor the ending value (<code>-1</code>). It is a “torn” write.</p>
+<h2 id="Code-Example-in-C"><a href="#Code-Example-in-C" class="headerlink" title="Code Example in C++"></a>Code Example in C++</h2><p>Here is a C++ example that could theoretically exhibit store tearing. Note that reproducing this deterministically is difficult because it depends heavily on timing, OS scheduling, and hardware architecture.</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdint&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// A struct that might be larger than a single atomic store instruction or unaligned.</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Data</span> &#123;</span><br><span class="line">    <span class="type">uint64_t</span> a;</span><br><span class="line">    <span class="type">uint64_t</span> b;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Data shared_data = &#123;<span class="number">0</span>, <span class="number">0</span>&#125;;</span><br><span class="line"><span class="type">bool</span> running = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">writer</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000000</span>; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (!running)</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="comment">// Write Set A</span></span><br><span class="line">        shared_data = &#123;<span class="number">0</span>, <span class="number">0</span>&#125;;</span><br><span class="line">        <span class="comment">// Write Set B</span></span><br><span class="line">        shared_data = &#123;<span class="number">0xFFFFFFFFFFFFFFFF</span>, <span class="number">0xFFFFFFFFFFFFFFFF</span>&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">    running = <span class="literal">false</span>;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Writer finished.&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">reader</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (running) &#123;</span><br><span class="line">        Data local = shared_data;</span><br><span class="line">        <span class="comment">// If we see a mismatch, or a mix of bits, we have tearing.</span></span><br><span class="line">        <span class="keyword">if</span> (local.a != local.b) &#123;</span><br><span class="line">            std::cout &lt;&lt; <span class="string">&quot;Tearing detected! a=&quot;</span> &lt;&lt; std::hex &lt;&lt; local.a</span><br><span class="line">                      &lt;&lt; <span class="string">&quot;, b=&quot;</span> &lt;&lt; local.b &lt;&lt; std::dec &lt;&lt; std::endl;</span><br><span class="line">            running = <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// Even within a single uint64_t, tearing could occur on 32-bit systems,</span></span><br><span class="line">        <span class="comment">// though checking a != b is an easier heuristic for this struct example.</span></span><br><span class="line">    &#125;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Reader finished.&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="function">std::thread <span class="title">t1</span><span class="params">(writer)</span></span>;</span><br><span class="line">    <span class="function">std::thread <span class="title">t2</span><span class="params">(reader)</span></span>;</span><br><span class="line"></span><br><span class="line">    t<span class="number">1.</span><span class="built_in">join</span>();</span><br><span class="line">    t<span class="number">2.</span><span class="built_in">join</span>();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>In the example above, <code>shared_data</code> is a struct. The compiler will likely generate multiple instructions to copy the struct. If the reader interrupts the writer, <code>local.a</code> might be from the “all ones” set while <code>local.b</code> is from the “all zeros” set.</p>
+<h3 id="A-Hidden-Bug-Data-Race-on-running"><a href="#A-Hidden-Bug-Data-Race-on-running" class="headerlink" title="A Hidden Bug: Data Race on running"></a>A Hidden Bug: Data Race on <code>running</code></h3><p>Did you spot another issue in the code above?</p>
+<p>The variable <code>bool running</code> is accessed by both threads without any synchronization. This is technically a <strong>data race</strong>, which is Undefined Behavior. While it often “just works” on x86 for simple booleans, the compiler is free to optimize the loop in <code>reader()</code> to assume <code>running</code> never changes (since it’s not modified within that loop), potentially causing an infinite loop.</p>
+<p>To fix this properly, <code>running</code> should also be <code>std::atomic&lt;bool&gt;</code>.</p>
+<h2 id="How-to-Fix-It"><a href="#How-to-Fix-It" class="headerlink" title="How to Fix It"></a>How to Fix It</h2><p>The solution to store tearing is to ensure <strong>atomicity</strong>.</p>
+<h3 id="1-Use-std-atomic"><a href="#1-Use-std-atomic" class="headerlink" title="1. Use std::atomic"></a>1. Use <code>std::atomic</code></h3><p>In C++, <code>std::atomic</code> guarantees that loads and stores are atomic.</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;atomic&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Data</span> &#123;</span><br><span class="line">    <span class="type">uint64_t</span> a;</span><br><span class="line">    <span class="type">uint64_t</span> b;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">std::atomic&lt;Data&gt; shared_data; <span class="comment">// Now writes to this are atomic</span></span><br></pre></td></tr></table></figure>
+
+<p><em>Note: <code>std::atomic</code> might use locks internally if the hardware cannot support atomic operations for the size of <code>Data</code>, but it guarantees safety.</em></p>
+<p><em>Note: Since <code>Data</code> is 16 bytes (128 bits), some compilers&#x2F;architectures require linking against the atomic library. If you see linker errors like <code>undefined reference to __atomic_store_16</code>, compile with <code>-latomic</code>:</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ main.cpp -o main -latomic</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-Use-Mutexes"><a href="#2-Use-Mutexes" class="headerlink" title="2. Use Mutexes"></a>2. Use Mutexes</h3><p>If you cannot use atomic types, use a <code>std::mutex</code> to protect the critical section.</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;mutex&gt;</span></span></span><br><span class="line"></span><br><span class="line">std::mutex mtx;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">writer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000000</span>; ++i) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!running) <span class="keyword">break</span>;</span><br><span class="line">        <span class="comment">// Use scopes to lock only for the duration of the write</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="function">std::lock_guard&lt;std::mutex&gt; <span class="title">lock</span><span class="params">(mtx)</span></span>;</span><br><span class="line">            shared_data = &#123;<span class="number">0</span>, <span class="number">0</span>&#125;;</span><br><span class="line">        &#125;</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="function">std::lock_guard&lt;std::mutex&gt; <span class="title">lock</span><span class="params">(mtx)</span></span>;</span><br><span class="line">            shared_data = &#123;<span class="number">0xFFFFFFFFFFFFFFFF</span>, <span class="number">0xFFFFFFFFFFFFFFFF</span>&#125;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    running = <span class="literal">false</span>;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Writer finished.&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">reader</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (running)</span><br><span class="line">    &#123;</span><br><span class="line">        Data local;</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="function">std::lock_guard&lt;std::mutex&gt; <span class="title">lock</span><span class="params">(mtx)</span></span>;</span><br><span class="line">            local = shared_data;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// If we see a mismatch, or a mix of bits, we have tearing.</span></span><br><span class="line">        <span class="keyword">if</span> (local.a != local.b)</span><br><span class="line">        &#123;</span><br><span class="line">            std::cout &lt;&lt; <span class="string">&quot;Tearing detected! a=&quot;</span> &lt;&lt; std::hex &lt;&lt; local.a</span><br><span class="line">                      &lt;&lt; <span class="string">&quot;, b=&quot;</span> &lt;&lt; local.b &lt;&lt; std::dec &lt;&lt; std::endl;</span><br><span class="line">            running = <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Reader finished.&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>Store tearing is a subtle bug that reminds us that hardware implementation details matter in concurrent programming. Always use proper synchronization primitives or atomic types when sharing data between threads, rather than relying on assumptions about how the processor writes to memory.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://thousandmiles.github.io/blog/2025/11/30/Exploring-Store-Tearing/" data-id="cuid9uD620LoOEcyrUv3K8H_8" data-title="Exploring Store Tearing" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/C/" rel="tag">C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/C/" rel="tag">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/Concurrency/" rel="tag">Concurrency</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/Memory-Model/" rel="tag">Memory-Model</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/blog/2025/11/23/Introducing-Semantic-Code-MCP-Server/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Introducing Semantic Code MCP Server</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/blog/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/Programming/">Programming</a></li><li class="category-list-item"><a class="category-list-link" href="/blog/categories/Projects/">Projects</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/C/" rel="tag">C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/C/" rel="tag">C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/CodeQL/" rel="tag">CodeQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Concurrency/" rel="tag">Concurrency</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/ELF/" rel="tag">ELF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/LSP/" rel="tag">LSP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/MCP/" rel="tag">MCP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Memory-Model/" rel="tag">Memory Model</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Memory-Model/" rel="tag">Memory-Model</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Object-Oriented-Programming/" rel="tag">Object-Oriented Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/PostgreSQL/" rel="tag">PostgreSQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Security/" rel="tag">Security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Socket/" rel="tag">Socket</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Tooling/" rel="tag">Tooling</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/TypeScript/" rel="tag">TypeScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Virtual-Functions/" rel="tag">Virtual Functions</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/blog/tags/AI/" style="font-size: 10px;">AI</a> <a href="/blog/tags/C/" style="font-size: 15px;">C</a> <a href="/blog/tags/C/" style="font-size: 20px;">C++</a> <a href="/blog/tags/CodeQL/" style="font-size: 10px;">CodeQL</a> <a href="/blog/tags/Concurrency/" style="font-size: 10px;">Concurrency</a> <a href="/blog/tags/ELF/" style="font-size: 10px;">ELF</a> <a href="/blog/tags/LSP/" style="font-size: 10px;">LSP</a> <a href="/blog/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/blog/tags/MCP/" style="font-size: 15px;">MCP</a> <a href="/blog/tags/Memory-Model/" style="font-size: 10px;">Memory Model</a> <a href="/blog/tags/Memory-Model/" style="font-size: 10px;">Memory-Model</a> <a href="/blog/tags/Object-Oriented-Programming/" style="font-size: 10px;">Object-Oriented Programming</a> <a href="/blog/tags/PostgreSQL/" style="font-size: 10px;">PostgreSQL</a> <a href="/blog/tags/Security/" style="font-size: 10px;">Security</a> <a href="/blog/tags/Socket/" style="font-size: 10px;">Socket</a> <a href="/blog/tags/Tooling/" style="font-size: 15px;">Tooling</a> <a href="/blog/tags/TypeScript/" style="font-size: 15px;">TypeScript</a> <a href="/blog/tags/Virtual-Functions/" style="font-size: 10px;">Virtual Functions</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/blog/archives/2025/11/">November 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/blog/2025/11/30/Exploring-Store-Tearing/">Exploring Store Tearing</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2025/11/23/Introducing-Semantic-Code-MCP-Server/">Introducing Semantic Code MCP Server</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2025/11/23/Accelerating-Code-Analysis-with-CodeQL-MCP-Server/">Accelerating Code Analysis with CodeQL MCP Server</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2025/11/23/Kuikui-Frictionless-Real-time-Collaboration/">Kuikui: Frictionless Real-time Collaboration</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2025/11/15/Understanding-ELF-Executable-and-Linkable-Format/">Understanding ELF - Executable and Linkable Format</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 Forrest Long<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/blog/" class="mobile-nav-link">Home</a>
+  
+    <a href="/blog/categories/Programming" class="mobile-nav-link">Programming</a>
+  
+    <a href="/blog/categories/AI" class="mobile-nav-link">AI</a>
+  
+    <a href="/blog/categories/Projects" class="mobile-nav-link">Projects</a>
+  
+    <a href="/blog/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/blog/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/blog/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/blog/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

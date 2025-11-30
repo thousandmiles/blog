@@ -81,14 +81,14 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-Accelerating-Code-Analysis-with-CodeQL-MCP-Server" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-Exploring-Store-Tearing" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/blog/2025/11/23/Accelerating-Code-Analysis-with-CodeQL-MCP-Server/" class="article-date">
-  <time class="dt-published" datetime="2025-11-22T16:00:00.000Z" itemprop="datePublished">2025-11-23</time>
+    <a href="/blog/2025/11/30/Exploring-Store-Tearing/" class="article-date">
+  <time class="dt-published" datetime="2025-11-30T02:00:00.000Z" itemprop="datePublished">2025-11-30</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/blog/categories/AI/">AI</a>
+    <a class="article-category-link" href="/blog/categories/Programming/">Programming</a>
   </div>
 
   </div>
@@ -99,7 +99,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/blog/2025/11/23/Accelerating-Code-Analysis-with-CodeQL-MCP-Server/">Accelerating Code Analysis with CodeQL MCP Server</a>
+      <a class="p-name article-title" href="/blog/2025/11/30/Exploring-Store-Tearing/">Exploring Store Tearing</a>
     </h1>
   
 
@@ -107,20 +107,21 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h2 id="Project-Overview"><a href="#Project-Overview" class="headerlink" title="Project Overview"></a>Project Overview</h2><p><strong>CodeQL MCP Server</strong>, a high-performance Model Context Protocol (MCP) server designed to supercharge code analysis and security scanning. By integrating GitHub’s powerful CodeQL engine with a PostgreSQL-backed graph database, this tool enables AI agents to perform complex code queries up to <strong>600x faster</strong> than standard methods.</p>
+        <p>Store tearing is a fascinating concurrency bug that occurs when a processor cannot update a memory location in a single atomic instruction. If a thread reads that memory location while the write is only partially complete, it sees a “torn” value—a mix of the old and new data.</p>
+<p>Let’s dive into what this looks like and how to prevent it.</p>
         
           <p class="article-more-link">
-            <a href="/blog/2025/11/23/Accelerating-Code-Analysis-with-CodeQL-MCP-Server/#more">Read More</a>
+            <a href="/blog/2025/11/30/Exploring-Store-Tearing/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://thousandmiles.github.io/blog/2025/11/23/Accelerating-Code-Analysis-with-CodeQL-MCP-Server/" data-id="cuidFtMRvUh0XAxCx0paSk0CC" data-title="Accelerating Code Analysis with CodeQL MCP Server" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://thousandmiles.github.io/blog/2025/11/30/Exploring-Store-Tearing/" data-id="cuid9uD620LoOEcyrUv3K8H_8" data-title="Exploring Store Tearing" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/CodeQL/" rel="tag">CodeQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/MCP/" rel="tag">MCP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/PostgreSQL/" rel="tag">PostgreSQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/Security/" rel="tag">Security</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/C/" rel="tag">C</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/C/" rel="tag">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/Concurrency/" rel="tag">Concurrency</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/Memory-Model/" rel="tag">Memory-Model</a></li></ul>
 
     </footer>
   </div>
@@ -165,11 +166,60 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://thousandmiles.github.io/blog/2025/11/23/Introducing-Semantic-Code-MCP-Server/" data-id="cuidfHm90PW8S1YxW-cQ6u87k" data-title="Introducing Semantic Code MCP Server" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://thousandmiles.github.io/blog/2025/11/23/Introducing-Semantic-Code-MCP-Server/" data-id="cuidS_VOOvDH-Lg9A73haqyuE" data-title="Introducing Semantic Code MCP Server" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/AI/" rel="tag">AI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/LSP/" rel="tag">LSP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/MCP/" rel="tag">MCP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/Tooling/" rel="tag">Tooling</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/TypeScript/" rel="tag">TypeScript</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-Accelerating-Code-Analysis-with-CodeQL-MCP-Server" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/blog/2025/11/23/Accelerating-Code-Analysis-with-CodeQL-MCP-Server/" class="article-date">
+  <time class="dt-published" datetime="2025-11-22T16:00:00.000Z" itemprop="datePublished">2025-11-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/blog/categories/AI/">AI</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/blog/2025/11/23/Accelerating-Code-Analysis-with-CodeQL-MCP-Server/">Accelerating Code Analysis with CodeQL MCP Server</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="Project-Overview"><a href="#Project-Overview" class="headerlink" title="Project Overview"></a>Project Overview</h2><p><strong>CodeQL MCP Server</strong>, a high-performance Model Context Protocol (MCP) server designed to supercharge code analysis and security scanning. By integrating GitHub’s powerful CodeQL engine with a PostgreSQL-backed graph database, this tool enables AI agents to perform complex code queries up to <strong>600x faster</strong> than standard methods.</p>
+        
+          <p class="article-more-link">
+            <a href="/blog/2025/11/23/Accelerating-Code-Analysis-with-CodeQL-MCP-Server/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://thousandmiles.github.io/blog/2025/11/23/Accelerating-Code-Analysis-with-CodeQL-MCP-Server/" data-id="cuidmcgVvMy-PtMVD-i6xpoQa" data-title="Accelerating Code Analysis with CodeQL MCP Server" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/CodeQL/" rel="tag">CodeQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/MCP/" rel="tag">MCP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/PostgreSQL/" rel="tag">PostgreSQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/Security/" rel="tag">Security</a></li></ul>
 
     </footer>
   </div>
@@ -221,7 +271,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://thousandmiles.github.io/blog/2025/11/23/Kuikui-Frictionless-Real-time-Collaboration/" data-id="cuid2MDq0berjnWCgJBKsxP10" data-title="Kuikui: Frictionless Real-time Collaboration" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://thousandmiles.github.io/blog/2025/11/23/Kuikui-Frictionless-Real-time-Collaboration/" data-id="cuidHtkhw7JR5hooXJeva7h_B" data-title="Kuikui: Frictionless Real-time Collaboration" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -270,7 +320,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://thousandmiles.github.io/blog/2025/11/15/Understanding-ELF-Executable-and-Linkable-Format/" data-id="cuidOPadg58DxQ0pcVD34aJ7i" data-title="Understanding ELF - Executable and Linkable Format" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://thousandmiles.github.io/blog/2025/11/15/Understanding-ELF-Executable-and-Linkable-Format/" data-id="cuidl_VeMranPDIz8t1WeCxzt" data-title="Understanding ELF - Executable and Linkable Format" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -319,7 +369,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://thousandmiles.github.io/blog/2025/11/09/Investigating-Cpp-Virtual-Table-and-Functions/" data-id="cuidRgb3j6lsQmAe_oAlSV1ZW" data-title="Investigating C++ Virtual Table and Functions" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://thousandmiles.github.io/blog/2025/11/09/Investigating-Cpp-Virtual-Table-and-Functions/" data-id="cuidJBVtbsD4m0ThFSKFN4AWv" data-title="Investigating C++ Virtual Table and Functions" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -369,7 +419,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://thousandmiles.github.io/blog/2025/11/08/What-If-We-Call-main-in-main/" data-id="cuidjoBdpjw4NTsly8ojnHhGq" data-title="What If We Call main() in main()" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://thousandmiles.github.io/blog/2025/11/08/What-If-We-Call-main-in-main/" data-id="cuidPc_Rqpan5qGTK4hWm9d-8" data-title="What If We Call main() in main()" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -403,7 +453,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/C/" rel="tag">C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/C/" rel="tag">C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/CodeQL/" rel="tag">CodeQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/ELF/" rel="tag">ELF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/LSP/" rel="tag">LSP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/MCP/" rel="tag">MCP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Memory-Model/" rel="tag">Memory Model</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Object-Oriented-Programming/" rel="tag">Object-Oriented Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/PostgreSQL/" rel="tag">PostgreSQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Security/" rel="tag">Security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Socket/" rel="tag">Socket</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Tooling/" rel="tag">Tooling</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/TypeScript/" rel="tag">TypeScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Virtual-Functions/" rel="tag">Virtual Functions</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/C/" rel="tag">C</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/C/" rel="tag">C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/CodeQL/" rel="tag">CodeQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Concurrency/" rel="tag">Concurrency</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/ELF/" rel="tag">ELF</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/LSP/" rel="tag">LSP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/MCP/" rel="tag">MCP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Memory-Model/" rel="tag">Memory Model</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Memory-Model/" rel="tag">Memory-Model</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Object-Oriented-Programming/" rel="tag">Object-Oriented Programming</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/PostgreSQL/" rel="tag">PostgreSQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Security/" rel="tag">Security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Socket/" rel="tag">Socket</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Tooling/" rel="tag">Tooling</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/TypeScript/" rel="tag">TypeScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/Virtual-Functions/" rel="tag">Virtual Functions</a></li></ul>
     </div>
   </div>
 
@@ -413,7 +463,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/blog/tags/AI/" style="font-size: 10px;">AI</a> <a href="/blog/tags/C/" style="font-size: 10px;">C</a> <a href="/blog/tags/C/" style="font-size: 20px;">C++</a> <a href="/blog/tags/CodeQL/" style="font-size: 10px;">CodeQL</a> <a href="/blog/tags/ELF/" style="font-size: 10px;">ELF</a> <a href="/blog/tags/LSP/" style="font-size: 10px;">LSP</a> <a href="/blog/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/blog/tags/MCP/" style="font-size: 20px;">MCP</a> <a href="/blog/tags/Memory-Model/" style="font-size: 10px;">Memory Model</a> <a href="/blog/tags/Object-Oriented-Programming/" style="font-size: 10px;">Object-Oriented Programming</a> <a href="/blog/tags/PostgreSQL/" style="font-size: 10px;">PostgreSQL</a> <a href="/blog/tags/Security/" style="font-size: 10px;">Security</a> <a href="/blog/tags/Socket/" style="font-size: 10px;">Socket</a> <a href="/blog/tags/Tooling/" style="font-size: 20px;">Tooling</a> <a href="/blog/tags/TypeScript/" style="font-size: 20px;">TypeScript</a> <a href="/blog/tags/Virtual-Functions/" style="font-size: 10px;">Virtual Functions</a>
+      <a href="/blog/tags/AI/" style="font-size: 10px;">AI</a> <a href="/blog/tags/C/" style="font-size: 15px;">C</a> <a href="/blog/tags/C/" style="font-size: 20px;">C++</a> <a href="/blog/tags/CodeQL/" style="font-size: 10px;">CodeQL</a> <a href="/blog/tags/Concurrency/" style="font-size: 10px;">Concurrency</a> <a href="/blog/tags/ELF/" style="font-size: 10px;">ELF</a> <a href="/blog/tags/LSP/" style="font-size: 10px;">LSP</a> <a href="/blog/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/blog/tags/MCP/" style="font-size: 15px;">MCP</a> <a href="/blog/tags/Memory-Model/" style="font-size: 10px;">Memory Model</a> <a href="/blog/tags/Memory-Model/" style="font-size: 10px;">Memory-Model</a> <a href="/blog/tags/Object-Oriented-Programming/" style="font-size: 10px;">Object-Oriented Programming</a> <a href="/blog/tags/PostgreSQL/" style="font-size: 10px;">PostgreSQL</a> <a href="/blog/tags/Security/" style="font-size: 10px;">Security</a> <a href="/blog/tags/Socket/" style="font-size: 10px;">Socket</a> <a href="/blog/tags/Tooling/" style="font-size: 15px;">Tooling</a> <a href="/blog/tags/TypeScript/" style="font-size: 15px;">TypeScript</a> <a href="/blog/tags/Virtual-Functions/" style="font-size: 10px;">Virtual Functions</a>
     </div>
   </div>
 
@@ -435,11 +485,15 @@
       <ul>
         
           <li>
-            <a href="/blog/2025/11/23/Accelerating-Code-Analysis-with-CodeQL-MCP-Server/">Accelerating Code Analysis with CodeQL MCP Server</a>
+            <a href="/blog/2025/11/30/Exploring-Store-Tearing/">Exploring Store Tearing</a>
           </li>
         
           <li>
             <a href="/blog/2025/11/23/Introducing-Semantic-Code-MCP-Server/">Introducing Semantic Code MCP Server</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2025/11/23/Accelerating-Code-Analysis-with-CodeQL-MCP-Server/">Accelerating Code Analysis with CodeQL MCP Server</a>
           </li>
         
           <li>
@@ -448,10 +502,6 @@
         
           <li>
             <a href="/blog/2025/11/15/Understanding-ELF-Executable-and-Linkable-Format/">Understanding ELF - Executable and Linkable Format</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2025/11/09/Investigating-Cpp-Virtual-Table-and-Functions/">Investigating C++ Virtual Table and Functions</a>
           </li>
         
       </ul>
